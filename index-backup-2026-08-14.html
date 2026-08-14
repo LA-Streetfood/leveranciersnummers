@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<!-- GitHub Pages versie: houd index.html en de map  bij elkaar. -->
+<html lang="nl">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:wght@300;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nieuwe producten per groothandel | LA Streetfood</title>
+<style>
+  :root {
+    --la-green: #24513c;
+    --la-yellow: #fcb328;
+    --la-butter: #fbecd0;
+    --la-white: #ffffff;
+    --la-black: #17221c;
+    --la-muted: #6b746f;
+    --la-line: #e8dfcf;
+    --la-green-soft: #edf4f0;
+    --la-red: #b9473f;
+    --la-red-soft: #fff1ef;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    color: var(--la-black);
+    font-family: "Open Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  }
+
+  body {
+    padding: 8px;
+  }
+
+  .la-board {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    background: #ffffff;
+  }
+
+  .la-topbar {
+    background: var(--la-green);
+    color: white;
+    border: 0;
+    border-bottom: 4px solid var(--la-yellow);
+    border-radius: 7px 7px 0 0;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .la-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-weight: 900;
+    letter-spacing: .2px;
+    font-size: 18px;
+  }
+
+  .la-title-mark {
+    display: none;
+  }
+
+  .la-logo {
+    width: 118px;
+    height: auto;
+    object-fit: contain;
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .la-heading-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .la-heading-main {
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1.1;
+  }
+
+  .la-heading-sub {
+    display: none;
+  }
+
+  .search-wrap {
+    min-width: min(100%, 340px);
+    flex: 0 1 430px;
+  }
+
+  .search {
+    width: 100%;
+    height: 44px;
+    border: 0;
+    border-radius: 5px;
+    padding: 0 14px;
+    font-size: 16px;
+    font-weight: 700;
+    outline: none;
+    background: #ffffff;
+    color: var(--la-green);
+    box-shadow: none;
+    font-family: "Open Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  }
+
+  .search:focus {
+    outline: 2px solid var(--la-yellow);
+    outline-offset: 0;
+    box-shadow: none;
+  }
+
+  .la-info {
+    background: var(--la-butter);
+    padding: 14px 22px;
+    border: 0;
+    border: 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .result-count {
+    font-size: 13px;
+    color: var(--la-muted);
+    font-weight: 700;
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--la-muted);
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .table-shell {
+    background: #ffffff;
+    border: 0;
+    border-radius: 0 0 7px 7px;
+    overflow: hidden;
+    box-shadow: none;
+  }
+
+  .table-scroll {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  table {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--la-green);
+    color: white;
+    padding: 10px 2px;
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.08;
+    text-transform: uppercase;
+    letter-spacing: .1px;
+    border-right: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  thead th:first-child {
+    text-align: left;
+    padding-left: 10px;
+    padding-right: 2px;
+    min-width: 0;
+    width: 16%;
+  }
+
+
+  thead th:nth-child(n+2):nth-child(-n+8),
+  tbody td:nth-child(n+2):nth-child(-n+8) {
+    width: 10%;
+    min-width: 0;
+  }
+
+  thead th:last-child,
+  tbody td:last-child {
+    width: 14%;
+    min-width: 0;
+  }
+
+  tbody td {
+    padding: 10px 2px;
+    border: 0;
+    text-align: center;
+    background: #ffffff;
+    transition: background .12s ease;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+
+  tbody tr:nth-child(even) td {
+    background: #fafafa;
+  }
+
+  tbody tr:hover td {
+    background: #f6f8f7;
+  }
+
+  tbody td:first-child {
+    width: 16%;
+    text-align: left;
+    padding-left: 10px;
+    padding-right: 2px;
+    font-weight: 700;
+    font-size: 13px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  
+
+  tbody tr.la-webshop td {
+    background: #f3f8f5;
+    border: 0;
+  }
+
+  tbody tr.la-webshop td:first-child { border: 0; }
+
+  tbody tr.future-ready td {
+    background: #fff9ed;
+    border: 0;
+  }
+
+  tbody tr.future-ready td:first-child { border: 0; }
+
+  tbody tr.future-ready td:last-child { border: 0; }
+
+  .availability {
+    display: inline-flex;
+    width: 31px;
+    height: 31px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    font-size: 17px;
+    font-weight: 900;
+  }
+
+  .yes {
+    background: var(--la-green-soft);
+    color: var(--la-green);
+    border: 0;
+  }
+
+  .no {
+    background: var(--la-red-soft);
+    color: var(--la-red);
+    border: 0;
+  }
+
+
+
+
+  .supplier-cell {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .supplier-logo {
+    width: 25px;
+    height: 22px;
+    border: 0;
+    border-radius: 3px;
+    flex: 0 0 25px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--la-green);
+    font-size: 8px;
+    line-height: 1;
+    font-weight: 700;
+    overflow: hidden;
+  }
+
+  .supplier-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 1px;
+    background: transparent;
+  }
+
+
+  .supplier-logo.brand-logo {
+    border-color: transparent;
+  }
+
+  .supplier-name {
+    min-width: 0;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .product-name {
+    display: block;
+    line-height: 1.08;
+  }
+
+  .la-code {
+    display: block;
+    margin-top: 4px;
+    color: var(--la-yellow);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .not-available-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 900;
+    color: var(--la-red);
+  }
+
+  .article-number {
+    display: inline;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--la-green);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0;
+    box-shadow: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .not-available {
+    display: inline-block;
+    max-width: 110px;
+    color: var(--la-muted);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+
+  .article-number.demo {
+    min-width: auto;
+    min-height: auto;
+    padding: 4px 7px;
+    font-size: 11px;
+  }
+
+  .not-available.demo {
+    max-width: none;
+  }
+
+  .status-cell {
+    min-width: 0;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .badge {
+    display: inline-block;
+    max-width: 100%;
+    border: 0;
+    border-radius: 4px;
+    padding: 5px 3px;
+    font-size: 11px;
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: 0;
+    white-space: normal;
+    box-shadow: none;
+    box-sizing: border-box;
+  }
+
+  .badge.future {
+    color: #ffffff;
+    background: var(--la-yellow);
+    border: 0;
+    border-radius: 4px;
+    box-shadow: none;
+  }
+
+  .badge.progress.zero {
+    background: var(--la-butter);
+    color: var(--la-green);
+  }
+
+  .badge.progress {
+    background: var(--la-butter);
+    color: var(--la-green);
+    border: 0;
+    border-radius: 4px;
+    box-shadow: none;
+  }
+
+  .progress-note {
+    margin-top: 3px;
+    color: var(--la-green);
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 700;
+  }
+
+  .empty {
+    display: none;
+    padding: 32px;
+    text-align: center;
+    color: var(--la-muted);
+    font-weight: 700;
+  }
+
+  @media (max-width: 700px) {
+    body { padding: 10px; }
+    .la-topbar { padding: 16px; border-radius: 0; }
+    .la-info { padding: 12px 16px; }
+    .la-title { font-size: 16px; }
+  }
+
+  html, body, input, button, select, textarea, table, th, td, span, div {
+    font-family: "Open Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  }
+
+</style>
+</head>
+
+<body>
+<div class="la-board">
+  <div class="la-topbar">
+    <div class="la-title">
+      <img class="la-logo" src="la-streetfood.png" alt="LA Streetfood">
+      <div class="la-heading-wrap">
+        <span class="la-heading-main">Nieuwe producten per groothandel</span>
+        
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <input
+        id="supplierFilter"
+        class="search"
+        type="search"
+        placeholder="Zoek jouw leverancier..."
+        aria-label="Zoek leverancier">
+    </div>
+  </div>
+<div class="table-shell">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Groothandel</th><th><span class="product-name">Authentic Mexican Cheese Sauce</span><span class="la-code">LA152</span></th><th><span class="product-name">Triple Stack Bun</span><span class="la-code">LA824</span></th><th><span class="product-name">Shrimp Popcorn</span><span class="la-code">LA768</span></th><th><span class="product-name">American Sub Sandwich</span><span class="la-code">LA823</span></th><th><span class="product-name">Texas Hotlink</span><span class="la-code">LA7600</span></th><th><span class="product-name">Steakhouse Burger</span><span class="la-code">LA882</span></th><th><span class="product-name">Ube Cheese Cake</span><span class="la-code">LA979</span></th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="supplierBody"></tbody>
+      </table>
+    </div>
+    <div id="emptyState" class="empty">Geen leverancier gevonden.</div>
+  </div>
+</div>
+
+<script>
+  /*
+   * HIER BEHEER JE DE ARTIKELNUMMERS PER LEVERANCIER.
+   *
+   * Voorbeeld:
+   * products: ["123456", "", "ABC789", "", "", "", ""]
+   *
+   * Een leeg veld toont automatisch een rood kruisje.
+   * Zodra alle 7 artikelnummers zijn ingevuld, krijgt de leverancier
+   * automatisch de status "Fit for the Future".
+   *
+   * De LA-codes in de kolomkoppen zijn:
+   * LA152, LA824, LA768, LA823, LA7600, LA882 en LA979.
+   */
+
+  const suppliers = [
+    { name: "Horesca Horecavo Leiderdorp", products: ["0115207","0125210","0135213","0145216","0155219","0165222","0175225"] },
+    { name: "Horesca Lieferink Twello", products: ["0215214","0225217","","0245223","0255226","","0275232"] },
+    { name: "Bidfood Harderwijk", products: ["0315221","","0335227","0345230","","0365236","0375239"] },
+    { name: "Horesca Meppel", products: ["","0425231","0435234","","0455240","0465243",""] },
+    { name: "Horesca Smulders Goirle", products: ["0515235","0525238","0535241","0545244","0555247","0565250","0575253"] },
+    { name: "Horesca Lieferink Raamsdonksveer", products: ["","","","","","",""] },
+    { name: "De Groot Grootverbruik Den Hoorn", products: ["","","","","","",""] },
+    { name: "Jansen Foodservice Doetinchem", products: ["0815256","0825259","","0845265","0855268","","0875274"] },
+    { name: "Veldboer Eenhoorn Zwaag", products: ["","","","","","",""] },
+    { name: "VHC Jongens Oostzaan", products: ["","1025273","1035276","","1055282","1065285",""] },
+    { name: "Krikke Culinair Grou", products: ["","","","","","",""] },
+    { name: "Combigro Helmink Foodservice Zutphen", products: ["","","","","","",""] },
+    { name: "Becker-Royen Maastricht", products: ["","","","","","",""] },
+    { name: "Jansma Wijhe", products: ["","","","","","",""] },
+    { name: "Chefs Culinar", products: ["1515205","1525208","1535211","1545214","1555217","1565220","1575223"] },
+    { name: "VHC Kreko Zevenbergen", products: ["","","","","","",""] },
+    { name: "Dékro Horeca Totaal Ravenstein", products: ["","","","","","",""] },
+    { name: "VHC Jongens Almere", products: ["","","","","","",""] },
+    { name: "Free Foods Roeselare", products: ["","","","","","",""] },
+    { name: "Foodpartners Woerden", products: ["","","","","","",""] },
+    { name: "Broekhuyzen Horecagroothandel Noordwijkerhout", products: ["","","","","","",""] },
+    { name: "Agora Culinair Vleesboerke", products: ["","","","","","",""] },
+    { name: "Van Hout Horeca NV", products: ["","","","","","",""] },
+    { name: "T’SEYEN FOODSERVICE", products: ["","","","","","",""] },
+    { name: "Bidfood Ede / DKW", products: ["","","","","","",""] },
+    { name: "Bellimmo Horeca", products: ["","","","","","",""] },
+    { name: "Bidfood Horeca Service", products: ["","","","","","",""] },
+    { name: "VHC ActiFood", products: ["","","","","","",""] },
+    { name: "LA Streetfood webshop & groothandel", products: ["LA152","LA824","LA768","LA823","LA7600","LA882","LA979"] },
+    { name: "Horesca Lieferink Zeist", products: ["","","","","","",""] },
+    { name: "Bidfood Ede / LVC", products: ["","","","","","",""] },
+    { name: "Bidfood Amsterdam / Verscentrum", products: ["","","","","","",""] },
+    { name: "Bidfood Burgh Haamstede", products: ["","","","","","",""] },
+    { name: "Bidfood Drachten", products: ["","","","","","",""] },
+    { name: "Bidfood Emmen", products: ["","","","","","",""] },
+    { name: "Bidfood Geleen", products: ["","","","","","",""] },
+    { name: "Bidfood Goirle", products: ["","","","","","",""] },
+    { name: "Bidfood Groningen", products: ["","","","","","",""] },
+    { name: "Bidfood Helmond", products: ["","","","","","",""] },
+    { name: "Bidfood Hengelo", products: ["","","","","","",""] },
+    { name: "Bidfood Hoofddorp", products: ["","","","","","",""] },
+    { name: "Bidfood Meppel", products: ["","","","","","",""] },
+    { name: "Bidfood Nieuwegein", products: ["","","","","","",""] },
+    { name: "Bidfood Schiedam", products: ["","","","","","",""] },
+    { name: "Horeca Groothandel Tilburg", products: ["","","","","","",""] },
+    { name: "Horeca van Zon Lommel", products: ["","","","","","",""] },
+    { name: "Bosteels", products: ["","","","","","",""] },
+    { name: "G&B Yerseke", products: ["","","","","","",""] },
+    { name: "Horeca van Zon Beerse", products: ["","","","","","",""] },
+    { name: "Horeca van Zon Beringen", products: ["","","","","","",""] },
+    { name: "Horeca van Zon Kampenhout", products: ["","","","","","",""] },
+    { name: "Warlop Horeca Service NV", products: ["","","","","","",""] },
+    { name: "Spuntini Tienen", products: ["","","","","","",""] },
+    { name: "Vandael Horeca NV", products: ["","","","","","",""] },
+    { name: "Snoep & Horecacenter Lingier", products: ["","","","","","",""] },
+    { name: "Bidfood de Clercq", products: ["","","","","","",""] },
+    { name: "EM Messiaen Horecaservice", products: ["","","","","","",""] },
+    { name: "Noyez", products: ["","","","","","",""] },
+    { name: "Bidfood Utrecht", products: ["5915213","5925216","","5945222","5955225","","5975231"] },
+    { name: "Culinair Service BVBA", products: ["","","","","","",""] },
+    { name: "Jansen Foodservice Lochem", products: ["","","","","","",""] },
+    { name: "Agora Culiniar Vleminckx", products: ["","","","","","",""] },
+    { name: "Good'nFood - Massafrit", products: ["","","","","","",""] },
+    { name: "VHC Kreko Pijnacker", products: ["","","","","","",""] },
+    { name: "Givana XL", products: ["","","","","","",""] },
+    { name: "Délisalades", products: ["","","","","","",""] },
+    { name: "Biervliet Freez Center", products: ["","","","","","",""] },
+    { name: "De Ruytter", products: ["","","","","","",""] },
+    { name: "MAISON DESPRIET", products: ["","","","","","",""] },
+    { name: "Spuntini Ghislenghien", products: ["","","","","","",""] },
+    { name: "Bidfood makady NV", products: ["","","","","","",""] },
+    { name: "Peters Vleeswaren", products: ["","","","","","",""] },
+    { name: "Castelein", products: ["","","","","","",""] },
+    { name: "Delobelle Food Service Horeca", products: ["","","","","","",""] },
+    { name: "VMS Fine Food", products: ["","","","","","",""] },
+    { name: "Koffiebranderij Degroof BVBA", products: ["","","","","","",""] },
+    { name: "Horecaservice Nevejan", products: ["","","","","","",""] },
+    { name: "Ramaut - Ramhoreca SA", products: ["","","","","","",""] },
+    { name: "Het Vitamientje", products: ["","","","","","",""] },
+    { name: "Horeca Van Zon Evergem", products: ["","","","","","",""] },
+    { name: "Buysse Snacks Horeca", products: ["","","","","","",""] },
+    { name: "Foodimpuls", products: ["","","","","","",""] },
+    { name: "CONWAY - The Convenience Company België NV/SA", products: ["","","","","","",""] },
+    { name: "Devlieger Filip BVBA", products: ["","","","","","",""] },
+    { name: "S.A COMPTOIR DES FAGNES", products: ["","","","","","",""] },
+    { name: "ROOMCENTRALE DRIESEN NV", products: ["","","","","","",""] },
+    { name: "Solucious NV", products: ["","","","","","",""] },
+    { name: "Solucious NV - LOT", products: ["","","","","","",""] },
+    { name: "Solucious NV - XPO Logistics", products: ["","","","","","",""] },
+    { name: "Seru Resto Service", products: ["","","","","","",""] },
+    { name: "Horeca Totaal Centraal Magazijn", products: ["","","","","","",""] },
+    { name: "Devisch Foodservice BV", products: ["","","","","","",""] },
+    { name: "CONWAY - The Convenience Company België NV/SA", products: ["","","","","","",""] },
+    { name: "I.L.I.S. sa", products: ["","","","","","",""] },
+    { name: "Jansen Foodservice Apeldoorn", products: ["","","","","","",""] },
+    { name: "BV Horeca Foods Oostende", products: ["","","","","","",""] },
+    { name: "Horeca Meeuwissen NV", products: ["","","","","","",""] },
+    { name: "BV Horeca Foods Brugge", products: ["","","","","","",""] },
+    { name: "Spuntini BVBA - Deerlijk", products: ["","","","","","",""] },
+    { name: "Fiers Gent", products: ["","","","","","",""] },
+    { name: "DeliNova", products: ["","","","","","",""] },
+    { name: "Esca Food Service BV", products: ["","","","","","",""] },
+    { name: "Devisch Foodservice BV", products: ["","","","","","",""] },
+    { name: "Visco Horeca", products: ["","","","","","",""] },
+    { name: "Ryal Distribution", products: ["","","","","","",""] },
+    { name: "Spuntini Wattrelos", products: ["","","","","","",""] },
+    { name: "Génédis", products: ["","","","","","",""] },
+    { name: "Spuntini Food's", products: ["","","","","","",""] },
+    { name: "HorecaHeren BV.", products: ["","","","","","",""] },
+    { name: "Van De Ven Vleeswaren B.V.", products: ["","","","","","",""] },
+    { name: "QSTA NL", products: ["11115277","","11135283","11145286","","11165292","11175295"] },
+    { name: "Makro NL", products: ["","","","","","",""] },
+    { name: "CULIVIER by Pinki", products: ["","","","","","",""] },
+    { name: "Fincioen BV", products: ["","","","","","",""] },
+    { name: "Fontijn Vlees en Vleeswaren B.V.", products: ["","","","","","",""] },
+    { name: "Precon NV", products: ["","","","","","",""] }
+  ];
+
+  const body = document.getElementById("supplierBody");
+  const filter = document.getElementById("supplierFilter");
+  const emptyState = document.getElementById("emptyState");
+
+
+  function supplierInitials(name) {
+    const cleaned = name
+      .replace(/&/g, " ")
+      .replace(/[^\p{L}\p{N}\s]/gu, " ")
+      .trim();
+
+    const parts = cleaned.split(/\s+/).filter(Boolean);
+    if (!parts.length) return "LA";
+
+    const first = parts[0][0] || "";
+    const second = parts.length > 1 ? (parts[1][0] || "") : "";
+    return (first + second).toUpperCase();
+  }
+
+  /*
+   * Later kunnen we hier echte logo-bestanden koppelen.
+   * Voorbeeld:
+   * const supplierLogos = {
+   *   "Bidfood Utrecht": "bidfood.png",
+   *   "Chefs Culinar": "chefs-culinar.png"
+   * };
+   */
+  const supplierLogos = {
+    horesca: "horesca.jpg",
+    bidfood: "bidfood.jpg",
+    vhc: "vhc.png",
+    brm: "brm.jpg",
+    krikke: "krikke.png",
+    jansen: "jansen.png",
+    veldboer: "veldboer.svg",
+    degroot: "degroot.svg",
+    chefs: "chefs.svg",
+    jansma: "jansma.svg",
+    pastridor: "pastridor.webp",
+    logo_text: "logo_text.svg",
+    conway: "conway.png",
+    makro: "makro.jpg",
+    bellimmo: "bellimmo.png",
+    horecafoods: "horecafoods.jpg",
+    horecatotaal: "horecatotaal.png",
+    devisch: "devisch.jpg",
+    vanzon: "https://static.wixstatic.com/media/68f608_f90869aca9994494915ec0f026bb9777~mv2.png/v1/fill/w_591%2Ch_591%2Cal_c%2Cq_85%2Cenc_avif%2Cquality_auto/Horeca%20Van%20Zon.png",
+    actifood: "https://burghgraefgehaktballen.nl/cdn/shop/files/Logo_VHC_ActiFood_-geelvlak_RGB.jpg?v=1749212645&width=3200",
+    visco: "visco.svg",
+    horecaheren: "horecaheren.webp",
+    vandeven: "vandeven.svg",
+    culivier: "culivier.jpg",
+    fincioen: "fincioen.jpg",
+    fontijn: "fontijn.png"
+  };
+
+  function getSupplierLogo(name) {
+    const lower = name.toLowerCase();
+
+    if (lower.includes("horesca")) return supplierLogos.horesca;
+    if (lower.includes("bidfood")) return supplierLogos.bidfood;
+    if (lower.includes("vhc")) return supplierLogos.vhc;
+    if (lower.includes("combigro helmink")) return supplierLogos.vhc;
+    if (lower.includes("becker-royen")) return supplierLogos.brm;
+    if (lower.includes("krikke")) return supplierLogos.krikke;
+    if (lower.includes("jansen foodservice")) return supplierLogos.jansen;
+    if (lower.includes("veldboer eenhoorn")) return supplierLogos.veldboer;
+    if (lower.includes("de groot grootverbruik")) return supplierLogos.degroot;
+    if (lower.includes("chefs culinar")) return supplierLogos.chefs;
+    if (lower.includes("jansma wijhe")) return supplierLogos.jansma;
+    if (lower.includes("spuntini")) return supplierLogos.logo_text;
+    if (lower.includes("conway")) return supplierLogos.conway;
+    if (lower.includes("makro")) return supplierLogos.makro;
+    if (lower.includes("bellimmo")) return supplierLogos.bellimmo;
+    if (lower.includes("horeca foods")) return supplierLogos.horecafoods;
+    if (lower.includes("horeca totaal centraal magazijn")) return supplierLogos.horecatotaal;
+    if (lower.includes("devisch foodservice")) return supplierLogos.devisch;
+    if (lower.includes("horeca van zon") || lower.includes("horeca van zon") || lower.includes("van zon lommel") || lower.includes("van zon beerse") || lower.includes("van zon beringen") || lower.includes("van zon kampenhout") || lower.includes("van zon evergem")) return supplierLogos.vanzon;
+    if (lower.includes("vhc actifood")) return supplierLogos.actifood;
+    if (lower.includes("esca food service")) return supplierLogos.devisch;
+
+
+    if (lower.includes("visco horeca")) return supplierLogos.visco;
+    if (lower.includes("horecaheren")) return supplierLogos.horecaheren;
+    if (lower.includes("van de ven vleeswaren")) return supplierLogos.vandeven;
+    if (lower.includes("culivier")) return supplierLogos.culivier;
+    if (lower.includes("fincioen")) return supplierLogos.fincioen;
+    if (lower.includes("fontijn vlees")) return supplierLogos.fontijn;
+
+    return "";
+  }
+
+  function supplierLogoHtml(name) {
+    const logo = getSupplierLogo(name);
+    if (logo) {
+      return `<span class="supplier-logo brand-logo"><img src="${logo}" alt=""></span>`;
+    }
+    return `<span class="supplier-logo">${supplierInitials(name)}</span>`;
+  }
+
+  function renderTable(term = "") {
+    const q = term.trim().toLowerCase();
+
+    const filtered = suppliers.filter(supplier =>
+      supplier.name.toLowerCase().includes(q)
+    );
+
+    body.innerHTML = filtered.map(supplier => {
+      const completed = supplier.products.filter(value => String(value).trim() !== "").length;
+      const allDone = completed === supplier.products.length;
+      const isLaWebshop = supplier.name === "LA Streetfood webshop & groothandel";
+
+      const productCells = supplier.products.map(articleNumber => {
+        const value = String(articleNumber || "").trim();
+        return `
+          <td>
+            ${value
+              ? `<span class="article-number">${value}</span>`
+              : `<span class="not-available-x" title="Nog niet beschikbaar" aria-label="Nog niet beschikbaar">×</span>`
+            }
+          </td>
+        `;
+      }).join("");
+
+      const status = allDone
+        ? `<span class="badge future">★ Fit for the Future</span>`
+        : `<span class="badge progress ${completed === 0 ? "zero" : ""}">${completed} / ${supplier.products.length}</span>
+           <div class="progress-note">artikelen aangemaakt</div>`;
+
+      const rowClasses = [
+        allDone ? "future-ready" : "",
+        isLaWebshop && !allDone ? "la-webshop" : ""
+      ].filter(Boolean).join(" ");
+
+      return `
+        <tr class="${rowClasses}">
+          <td><div class="supplier-cell">${supplierLogoHtml(supplier.name)}<span class="supplier-name">${supplier.name}</span></div></td>
+          ${productCells}
+          <td class="status-cell">${status}</td>
+        </tr>
+      `;
+    }).join("");
+emptyState.style.display = filtered.length ? "none" : "block";
+  }
+
+  filter.addEventListener("input", event => renderTable(event.target.value));
+
+  renderTable();
+</script>
+</body>
+</html>
+
+<style>
+html, body, .la-board, .la-topbar, .table-shell, .table-scroll, table {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.search-wrap {
+  min-width: 0 !important;
+}
+.status-cell {
+  min-width: 0 !important;
+  overflow: hidden;
+}
+  .supplier-cell{gap:10px} thead th:first-child,tbody td:first-child{width:13%} @media (max-width:700px){.la-topbar{flex-direction:column;align-items:stretch;gap:12px} .la-title{flex-wrap:wrap} .la-logo{width:96px} .search-wrap{width:100%;flex:1 1 auto;max-width:100%} .search{width:100%}}
+</style>
