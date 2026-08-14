@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:wght@300;700&display=swap" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nieuwe producten per leverancier | LA Streetfood</title>
+<title>Nieuwe producten per groothandel | LA Streetfood</title>
 <style>
   :root {
     --la-green: #24513c;
@@ -172,6 +172,7 @@
 
   table {
     width: 100%;
+    max-width: 100%;
     min-width: 0;
     table-layout: fixed;
     border-collapse: separate;
@@ -184,43 +185,48 @@
     z-index: 3;
     background: var(--la-green);
     color: white;
-    padding: 10px 4px;
+    padding: 10px 2px;
     text-align: center;
-    font-size: 9px;
+    font-size: 11px;
     line-height: 1.08;
     text-transform: uppercase;
     letter-spacing: .1px;
     border-right: 0;
     white-space: normal;
     overflow-wrap: anywhere;
+    word-break: normal;
   }
 
   thead th:first-child {
     text-align: left;
-    padding-left: 6px;
+    padding-left: 3px;
+    padding-right: 2px;
     min-width: 0;
-    width: 17%;
+    width: 16%;
   }
 
 
   thead th:nth-child(n+2):nth-child(-n+8),
   tbody td:nth-child(n+2):nth-child(-n+8) {
     width: 10%;
+    min-width: 0;
   }
 
   thead th:last-child,
   tbody td:last-child {
-    width: 13%;
+    width: 14%;
+    min-width: 0;
   }
 
   tbody td {
-    padding: 10px 4px;
+    padding: 10px 2px;
     border: 0;
     text-align: center;
     background: #ffffff;
     transition: background .12s ease;
-    font-size: 12px;
+    font-size: 14px;
     overflow-wrap: anywhere;
+    min-width: 0;
   }
 
 
@@ -233,13 +239,14 @@
   }
 
   tbody td:first-child {
-    width: 17%;
+    width: 16%;
     text-align: left;
-    padding-left: 6px;
-    padding-right: 3px;
+    padding-left: 3px;
+    padding-right: 2px;
     font-weight: 700;
-    font-size: 11px;
+    font-size: 13px;
     min-width: 0;
+    overflow: hidden;
   }
 
   
@@ -289,16 +296,17 @@
   .supplier-cell {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 3px;
     min-width: 0;
+    width: 100%;
   }
 
   .supplier-logo {
-    width: 30px;
-    height: 24px;
+    width: 25px;
+    height: 22px;
     border: 0;
     border-radius: 3px;
-    flex: 0 0 30px;
+    flex: 0 0 25px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -327,6 +335,7 @@
     min-width: 0;
     line-height: 1.15;
     overflow-wrap: anywhere;
+    word-break: normal;
   }
 
   .product-name {
@@ -338,7 +347,7 @@
     display: block;
     margin-top: 4px;
     color: var(--la-yellow);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0;
   }
@@ -363,11 +372,12 @@
     border-radius: 0;
     background: transparent;
     color: var(--la-green);
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0;
     box-shadow: none;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .not-available {
@@ -398,15 +408,17 @@
 
   .badge {
     display: inline-block;
+    max-width: 100%;
     border: 0;
     border-radius: 4px;
-    padding: 5px 5px;
-    font-size: 9px;
+    padding: 5px 3px;
+    font-size: 11px;
     line-height: 1.05;
     font-weight: 700;
     letter-spacing: 0;
     white-space: normal;
     box-shadow: none;
+    box-sizing: border-box;
   }
 
   .badge.future {
@@ -433,7 +445,7 @@
   .progress-note {
     margin-top: 3px;
     color: var(--la-green);
-    font-size: 9px;
+    font-size: 11px;
     line-height: 1;
     font-weight: 700;
   }
@@ -466,7 +478,7 @@
     <div class="la-title">
       <img class="la-logo" src="logos/la-streetfood.png" alt="LA Streetfood">
       <div class="la-heading-wrap">
-        <span class="la-heading-main">Nieuwe producten per leverancier</span>
+        <span class="la-heading-main">Nieuwe producten per groothandel</span>
         
       </div>
     </div>
@@ -485,7 +497,7 @@
       <table>
         <thead>
           <tr>
-            <th>Leverancier</th><th><span class="product-name">Authentic Mexican Cheese Sauce</span><span class="la-code">LA152</span></th><th><span class="product-name">Triple Stack Bun</span><span class="la-code">LA824</span></th><th><span class="product-name">Shrimp Popcorn</span><span class="la-code">LA768</span></th><th><span class="product-name">American Sub Sandwich</span><span class="la-code">LA823</span></th><th><span class="product-name">Texas Hotlink</span><span class="la-code">LA7600</span></th><th><span class="product-name">Steakhouse Burger</span><span class="la-code">LA882</span></th><th><span class="product-name">Ube Cheese Cake</span><span class="la-code">LA979</span></th><th>Status</th>
+            <th>Groothandel</th><th><span class="product-name">Authentic Mexican Cheese Sauce</span><span class="la-code">LA152</span></th><th><span class="product-name">Triple Stack Bun</span><span class="la-code">LA824</span></th><th><span class="product-name">Shrimp Popcorn</span><span class="la-code">LA768</span></th><th><span class="product-name">American Sub Sandwich</span><span class="la-code">LA823</span></th><th><span class="product-name">Texas Hotlink</span><span class="la-code">LA7600</span></th><th><span class="product-name">Steakhouse Burger</span><span class="la-code">LA882</span></th><th><span class="product-name">Ube Cheese Cake</span><span class="la-code">LA979</span></th><th>Status</th>
           </tr>
         </thead>
         <tbody id="supplierBody"></tbody>
@@ -780,3 +792,17 @@ emptyState.style.display = filtered.length ? "none" : "block";
 </script>
 </body>
 </html>
+
+<style>
+html, body, .la-board, .la-topbar, .table-shell, .table-scroll, table {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.search-wrap {
+  min-width: 0 !important;
+}
+.status-cell {
+  min-width: 0 !important;
+  overflow: hidden;
+}
+</style>
