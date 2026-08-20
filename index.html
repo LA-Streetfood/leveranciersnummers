@@ -206,9 +206,9 @@
   }
 
 
-  thead th:nth-child(n+2):nth-child(-n+8),
-  tbody td:nth-child(n+2):nth-child(-n+8) {
-    width: 10%;
+  thead th:nth-child(n+2):nth-child(-n+9),
+  tbody td:nth-child(n+2):nth-child(-n+9) {
+    width: 9%;
     min-width: 0;
   }
 
@@ -259,7 +259,7 @@
   tbody tr.la-webshop td:first-child { border: 0; }
 
   tbody tr.future-ready td {
-    background: #fff9ed;
+    background: #f0f8f3;
     border: 0;
   }
 
@@ -405,7 +405,21 @@
     padding-left: 3px;
     padding-right: 3px;
   }
-h
+  .check-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2e9e5b, #1f7a44);
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(31, 122, 68, .35), 0 0 0 3px rgba(46, 158, 91, .18);
+  }
+
   .badge {
     display: inline-block;
     max-width: 100%;
@@ -497,7 +511,7 @@ h
       <table>
         <thead>
           <tr>
-            <th>Groothandel</th><th><span class="product-name">Authentic Mexican Cheese Sauce</span><span class="la-code">LA152</span></th><th><span class="product-name">Triple Stack Bun</span><span class="la-code">LA824</span></th><th><span class="product-name">Shrimp Popcorn</span><span class="la-code">LA768</span></th><th><span class="product-name">American Sub Sandwich</span><span class="la-code">LA823</span></th><th><span class="product-name">Texas Hotlink</span><span class="la-code">LA7600</span></th><th><span class="product-name">Steakhouse Burger</span><span class="la-code">LA882</span></th><th><span class="product-name">Ube Cheese Cake</span><span class="la-code">LA979</span></th><th>Status</th>
+            <th>Groothandel</th><th><span class="product-name">Authentic Mexican Cheese Sauce</span><span class="la-code">LA152</span></th><th><span class="product-name">Triple Stack Bun</span><span class="la-code">LA824</span></th><th><span class="product-name">Shrimp Popcorn</span><span class="la-code">LA768</span></th><th><span class="product-name">American Sub Sandwich</span><span class="la-code">LA823</span></th><th><span class="product-name">Texas Hotlink</span><span class="la-code">LA7600</span></th><th><span class="product-name">Steakhouse Burger</span><span class="la-code">LA882</span></th><th><span class="product-name">Ube Cheese Cake</span><span class="la-code">LA979</span></th><th><span class="product-name">American Dill Pickles</span><span class="la-code">LA115</span></th><th>Status</th>
           </tr>
         </thead>
         <tbody id="supplierBody"></tbody>
@@ -512,132 +526,136 @@ h
    * HIER BEHEER JE DE ARTIKELNUMMERS PER LEVERANCIER.
    *
    * Voorbeeld:
-   * products: ["123456", "", "ABC789", "", "", "", ""]
+   * products: ["123456", "", "ABC789", "", "", "", "", ""]
    *
    * Een leeg veld toont automatisch een rood kruisje.
-   * Zodra alle 7 artikelnummers zijn ingevuld, krijgt de leverancier
-   * automatisch de status "Fit for the Future".
+   * Zodra alle 8 artikelnummers zijn ingevuld, krijgt de leverancier
+   * automatisch een groen vinkje.
    *
    * De LA-codes in de kolomkoppen zijn:
-   * LA152, LA824, LA768, LA823, LA7600, LA882 en LA979.
+   * LA152, LA824, LA768, LA823, LA7600, LA882, LA979 en LA115.
+   *
+   * Deze versie bevat alleen de NEDERLANDSE leveranciers.
+   * De Belgische leveranciers staan in belgie.html.
+   * De lijst wordt automatisch alfabetisch gesorteerd.
    */
 
   const suppliers = [
-    { name: "Horesca Horecavo Leiderdorp", products: ["0115207","0125210","0135213","0145216","0155219","0165222","0175225"] },
-    { name: "Horesca Lieferink Twello", products: ["0215214","0225217","","0245223","0255226","","0275232"] },
-    { name: "Bidfood Harderwijk", products: ["0315221","","0335227","0345230","","0365236","0375239"] },
-    { name: "Horesca Meppel", products: ["","0425231","0435234","","0455240","0465243",""] },
-    { name: "Horesca Smulders Goirle", products: ["0515235","0525238","0535241","0545244","0555247","0565250","0575253"] },
-    { name: "Horesca Lieferink Raamsdonksveer", products: ["","","","","","",""] },
-    { name: "De Groot Grootverbruik Den Hoorn", products: ["","","","","","",""] },
-    { name: "Jansen Foodservice Doetinchem", products: ["0815256","0825259","","0845265","0855268","","0875274"] },
-    { name: "Veldboer Eenhoorn Zwaag", products: ["","","","","","",""] },
-    { name: "VHC Jongens Oostzaan", products: ["","1025273","1035276","","1055282","1065285",""] },
-    { name: "Krikke Culinair Grou", products: ["","","","","","",""] },
-    { name: "Combigro Helmink Foodservice Zutphen", products: ["","","","","","",""] },
-    { name: "Becker-Royen Maastricht", products: ["","","","","","",""] },
-    { name: "Jansma Wijhe", products: ["","","","","","",""] },
-    { name: "Chefs Culinar", products: ["1515205","1525208","1535211","1545214","1555217","1565220","1575223"] },
-    { name: "VHC Kreko Zevenbergen", products: ["","","","","","",""] },
-    { name: "Dékro Horeca Totaal Ravenstein", products: ["","","","","","",""] },
-    { name: "VHC Jongens Almere", products: ["","","","","","",""] },
-    { name: "Free Foods Roeselare", products: ["","","","","","",""] },
-    { name: "Foodpartners Woerden", products: ["","","","","","",""] },
-    { name: "Broekhuyzen Horecagroothandel Noordwijkerhout", products: ["","","","","","",""] },
-    { name: "Agora Culinair Vleesboerke", products: ["","","","","","",""] },
-    { name: "Van Hout Horeca NV", products: ["","","","","","",""] },
-    { name: "T’SEYEN FOODSERVICE", products: ["","","","","","",""] },
-    { name: "Bidfood Ede / DKW", products: ["","","","","","",""] },
-    { name: "Bellimmo Horeca", products: ["","","","","","",""] },
-    { name: "Bidfood Horeca Service", products: ["","","","","","",""] },
-    { name: "VHC ActiFood", products: ["","","","","","",""] },
-    { name: "Horesca Lieferink Zeist", products: ["","","","","","",""] },
-    { name: "Bidfood Ede / LVC", products: ["","","","","","",""] },
-    { name: "Bidfood Amsterdam / Verscentrum", products: ["","","","","","",""] },
-    { name: "Bidfood Burgh Haamstede", products: ["","","","","","",""] },
-    { name: "Bidfood Drachten", products: ["","","","","","",""] },
-    { name: "Bidfood Emmen", products: ["","","","","","",""] },
-    { name: "Bidfood Geleen", products: ["","","","","","",""] },
-    { name: "Bidfood Goirle", products: ["","","","","","",""] },
-    { name: "Bidfood Groningen", products: ["","","","","","",""] },
-    { name: "Bidfood Helmond", products: ["","","","","","",""] },
-    { name: "Bidfood Hengelo", products: ["","","","","","",""] },
-    { name: "Bidfood Hoofddorp", products: ["","","","","","",""] },
-    { name: "Bidfood Meppel", products: ["","","","","","",""] },
-    { name: "Bidfood Nieuwegein", products: ["","","","","","",""] },
-    { name: "Bidfood Schiedam", products: ["","","","","","",""] },
-    { name: "Horeca Groothandel Tilburg", products: ["","","","","","",""] },
-    { name: "Horeca van Zon Lommel", products: ["","","","","","",""] },
-    { name: "Bosteels", products: ["","","","","","",""] },
-    { name: "G&B Yerseke", products: ["","","","","","",""] },
-    { name: "Horeca van Zon Beerse", products: ["","","","","","",""] },
-    { name: "Horeca van Zon Beringen", products: ["","","","","","",""] },
-    { name: "Horeca van Zon Kampenhout", products: ["","","","","","",""] },
-    { name: "Warlop Horeca Service NV", products: ["","","","","","",""] },
-    { name: "Spuntini Tienen", products: ["","","","","","",""] },
-    { name: "Vandael Horeca NV", products: ["","","","","","",""] },
-    { name: "Snoep & Horecacenter Lingier", products: ["","","","","","",""] },
-    { name: "Bidfood de Clercq", products: ["","","","","","",""] },
-    { name: "EM Messiaen Horecaservice", products: ["","","","","","",""] },
-    { name: "Noyez", products: ["","","","","","",""] },
-    { name: "Bidfood Utrecht", products: ["5915213","5925216","","5945222","5955225","","5975231"] },
-    { name: "Culinair Service BVBA", products: ["","","","","","",""] },
-    { name: "Jansen Foodservice Lochem", products: ["","","","","","",""] },
-    { name: "Agora Culiniar Vleminckx", products: ["","","","","","",""] },
-    { name: "Good'nFood - Massafrit", products: ["","","","","","",""] },
-    { name: "VHC Kreko Pijnacker", products: ["","","","","","",""] },
-    { name: "Givana XL", products: ["","","","","","",""] },
-    { name: "Délisalades", products: ["","","","","","",""] },
-    { name: "Biervliet Freez Center", products: ["","","","","","",""] },
-    { name: "De Ruytter", products: ["","","","","","",""] },
-    { name: "MAISON DESPRIET", products: ["","","","","","",""] },
-    { name: "Spuntini Ghislenghien", products: ["","","","","","",""] },
-    { name: "Bidfood makady NV", products: ["","","","","","",""] },
-    { name: "Peters Vleeswaren", products: ["","","","","","",""] },
-    { name: "Castelein", products: ["","","","","","",""] },
-    { name: "Delobelle Food Service Horeca", products: ["","","","","","",""] },
-    { name: "VMS Fine Food", products: ["","","","","","",""] },
-    { name: "Koffiebranderij Degroof BVBA", products: ["","","","","","",""] },
-    { name: "Horecaservice Nevejan", products: ["","","","","","",""] },
-    { name: "Ramaut - Ramhoreca SA", products: ["","","","","","",""] },
-    { name: "Het Vitamientje", products: ["","","","","","",""] },
-    { name: "Horeca Van Zon Evergem", products: ["","","","","","",""] },
-    { name: "Buysse Snacks Horeca", products: ["","","","","","",""] },
-    { name: "Foodimpuls", products: ["","","","","","",""] },
-    { name: "CONWAY - The Convenience Company België NV/SA", products: ["","","","","","",""] },
-    { name: "Devlieger Filip BVBA", products: ["","","","","","",""] },
-    { name: "S.A COMPTOIR DES FAGNES", products: ["","","","","","",""] },
-    { name: "ROOMCENTRALE DRIESEN NV", products: ["","","","","","",""] },
-    { name: "Solucious NV", products: ["","","","","","",""] },
-    { name: "Solucious NV - LOT", products: ["","","","","","",""] },
-    { name: "Solucious NV - XPO Logistics", products: ["","","","","","",""] },
-    { name: "Seru Resto Service", products: ["","","","","","",""] },
-    { name: "Horeca Totaal Centraal Magazijn", products: ["","","","","","",""] },
-    { name: "Devisch Foodservice BV", products: ["","","","","","",""] },
-    { name: "CONWAY - The Convenience Company België NV/SA", products: ["","","","","","",""] },
-    { name: "I.L.I.S. sa", products: ["","","","","","",""] },
-    { name: "Jansen Foodservice Apeldoorn", products: ["","","","","","",""] },
-    { name: "BV Horeca Foods Oostende", products: ["","","","","","",""] },
-    { name: "Horeca Meeuwissen NV", products: ["","","","","","",""] },
-    { name: "BV Horeca Foods Brugge", products: ["","","","","","",""] },
-    { name: "Spuntini BVBA - Deerlijk", products: ["","","","","","",""] },
-    { name: "Fiers Gent", products: ["","","","","","",""] },
-    { name: "DeliNova", products: ["","","","","","",""] },
-    { name: "Esca Food Service BV", products: ["","","","","","",""] },
-    { name: "Devisch Foodservice BV", products: ["","","","","","",""] },
-    { name: "Visco Horeca", products: ["","","","","","",""] },
-    { name: "Ryal Distribution", products: ["","","","","","",""] },
-    { name: "Spuntini Wattrelos", products: ["","","","","","",""] },
-    { name: "Génédis", products: ["","","","","","",""] },
-    { name: "Spuntini Food's", products: ["","","","","","",""] },
-    { name: "HorecaHeren BV.", products: ["","","","","","",""] },
-    { name: "Van De Ven Vleeswaren B.V.", products: ["","","","","","",""] },
-    { name: "QSTA NL", products: ["11115277","","11135283","11145286","","11165292","11175295"] },
-    { name: "Makro NL", products: ["","","","","","",""] },
-    { name: "CULIVIER by Pinki", products: ["","","","","","",""] },
-    { name: "Fincioen BV", products: ["","","","","","",""] },
-    { name: "Fontijn Vlees en Vleeswaren B.V.", products: ["","","","","","",""] },
-    { name: "Precon NV", products: ["","","","","","",""] }
+    { name: "Horesca Horecavo Leiderdorp", products: ["0115207","0125210","0135213","0145216","0155219","0165222","0175225",""] },
+    { name: "Horesca Lieferink Twello", products: ["0215214","0225217","","0245223","0255226","","0275232",""] },
+    { name: "Bidfood Harderwijk", products: ["0315221","","0335227","0345230","","0365236","0375239",""] },
+    { name: "Horesca Meppel", products: ["","0425231","0435234","","0455240","0465243","",""] },
+    { name: "Horesca Smulders Goirle", products: ["0515235","0525238","0535241","0545244","0555247","0565250","0575253",""] },
+    { name: "Horesca Lieferink Raamsdonksveer", products: ["","","","","","","",""] },
+    { name: "De Groot Grootverbruik Den Hoorn", products: ["","","","","","","",""] },
+    { name: "Jansen Foodservice Doetinchem", products: ["0815256","0825259","","0845265","0855268","","0875274",""] },
+    { name: "Veldboer Eenhoorn Zwaag", products: ["","","","","","","",""] },
+    { name: "VHC Jongens Oostzaan", products: ["","1025273","1035276","","1055282","1065285","",""] },
+    { name: "Krikke Culinair Grou", products: ["","","","","","","",""] },
+    { name: "Combigro Helmink Foodservice Zutphen", products: ["","","","","","","",""] },
+    { name: "Becker-Royen Maastricht", products: ["","","","","","","",""] },
+    { name: "Jansma Wijhe", products: ["","","","","","","",""] },
+    { name: "Chefs Culinar", products: ["1515205","1525208","1535211","1545214","1555217","1565220","1575223",""] },
+    { name: "VHC Kreko Zevenbergen", products: ["","","","","","","",""] },
+    { name: "Dékro Horeca Totaal Ravenstein", products: ["","","","","","","",""] },
+    { name: "VHC Jongens Almere", products: ["","","","","","","",""] },
+    { name: "Free Foods Roeselare", products: ["","","","","","","",""] },
+    { name: "Foodpartners Woerden", products: ["","","","","","","",""] },
+    { name: "Broekhuyzen Horecagroothandel Noordwijkerhout", products: ["","","","","","","",""] },
+    { name: "Agora Culinair Vleesboerke", products: ["","","","","","","",""] },
+    { name: "Van Hout Horeca NV", products: ["","","","","","","",""] },
+    { name: "T’SEYEN FOODSERVICE", products: ["","","","","","","",""] },
+    { name: "Bidfood Ede / DKW", products: ["","","","","","","",""] },
+    { name: "Bellimmo Horeca", products: ["","","","","","","",""] },
+    { name: "Bidfood Horeca Service", products: ["","","","","","","",""] },
+    { name: "VHC ActiFood", products: ["","","","","","","",""] },
+    { name: "Horesca Lieferink Zeist", products: ["","","","","","","",""] },
+    { name: "Bidfood Ede / LVC", products: ["","","","","","","",""] },
+    { name: "Bidfood Amsterdam / Verscentrum", products: ["","","","","","","",""] },
+    { name: "Bidfood Burgh Haamstede", products: ["","","","","","","",""] },
+    { name: "Bidfood Drachten", products: ["","","","","","","",""] },
+    { name: "Bidfood Emmen", products: ["","","","","","","",""] },
+    { name: "Bidfood Geleen", products: ["","","","","","","",""] },
+    { name: "Bidfood Goirle", products: ["","","","","","","",""] },
+    { name: "Bidfood Groningen", products: ["","","","","","","",""] },
+    { name: "Bidfood Helmond", products: ["","","","","","","",""] },
+    { name: "Bidfood Hengelo", products: ["","","","","","","",""] },
+    { name: "Bidfood Hoofddorp", products: ["","","","","","","",""] },
+    { name: "Bidfood Meppel", products: ["","","","","","","",""] },
+    { name: "Bidfood Nieuwegein", products: ["","","","","","","",""] },
+    { name: "Bidfood Schiedam", products: ["","","","","","","",""] },
+    { name: "Horeca Groothandel Tilburg", products: ["","","","","","","",""] },
+    { name: "Horeca van Zon Lommel", products: ["","","","","","","",""] },
+    { name: "Bosteels", products: ["","","","","","","",""] },
+    { name: "G&B Yerseke", products: ["","","","","","","",""] },
+    { name: "Horeca van Zon Beerse", products: ["","","","","","","",""] },
+    { name: "Horeca van Zon Beringen", products: ["","","","","","","",""] },
+    { name: "Horeca van Zon Kampenhout", products: ["","","","","","","",""] },
+    { name: "Warlop Horeca Service NV", products: ["","","","","","","",""] },
+    { name: "Spuntini Tienen", products: ["","","","","","","",""] },
+    { name: "Vandael Horeca NV", products: ["","","","","","","",""] },
+    { name: "Snoep & Horecacenter Lingier", products: ["","","","","","","",""] },
+    { name: "Bidfood de Clercq", products: ["","","","","","","",""] },
+    { name: "EM Messiaen Horecaservice", products: ["","","","","","","",""] },
+    { name: "Noyez", products: ["","","","","","","",""] },
+    { name: "Bidfood Utrecht", products: ["5915213","5925216","","5945222","5955225","","5975231",""] },
+    { name: "Culinair Service BVBA", products: ["","","","","","","",""] },
+    { name: "Jansen Foodservice Lochem", products: ["","","","","","","",""] },
+    { name: "Agora Culiniar Vleminckx", products: ["","","","","","","",""] },
+    { name: "Good'nFood - Massafrit", products: ["","","","","","","",""] },
+    { name: "VHC Kreko Pijnacker", products: ["","","","","","","",""] },
+    { name: "Givana XL", products: ["","","","","","","",""] },
+    { name: "Délisalades", products: ["","","","","","","",""] },
+    { name: "Biervliet Freez Center", products: ["","","","","","","",""] },
+    { name: "De Ruytter", products: ["","","","","","","",""] },
+    { name: "MAISON DESPRIET", products: ["","","","","","","",""] },
+    { name: "Spuntini Ghislenghien", products: ["","","","","","","",""] },
+    { name: "Bidfood makady NV", products: ["","","","","","","",""] },
+    { name: "Peters Vleeswaren", products: ["","","","","","","",""] },
+    { name: "Castelein", products: ["","","","","","","",""] },
+    { name: "Delobelle Food Service Horeca", products: ["","","","","","","",""] },
+    { name: "VMS Fine Food", products: ["","","","","","","",""] },
+    { name: "Koffiebranderij Degroof BVBA", products: ["","","","","","","",""] },
+    { name: "Horecaservice Nevejan", products: ["","","","","","","",""] },
+    { name: "Ramaut - Ramhoreca SA", products: ["","","","","","","",""] },
+    { name: "Het Vitamientje", products: ["","","","","","","",""] },
+    { name: "Horeca Van Zon Evergem", products: ["","","","","","","",""] },
+    { name: "Buysse Snacks Horeca", products: ["","","","","","","",""] },
+    { name: "Foodimpuls", products: ["","","","","","","",""] },
+    { name: "CONWAY - The Convenience Company België NV/SA", products: ["","","","","","","",""] },
+    { name: "Devlieger Filip BVBA", products: ["","","","","","","",""] },
+    { name: "S.A COMPTOIR DES FAGNES", products: ["","","","","","","",""] },
+    { name: "ROOMCENTRALE DRIESEN NV", products: ["","","","","","","",""] },
+    { name: "Solucious NV", products: ["","","","","","","",""] },
+    { name: "Solucious NV - LOT", products: ["","","","","","","",""] },
+    { name: "Solucious NV - XPO Logistics", products: ["","","","","","","",""] },
+    { name: "Seru Resto Service", products: ["","","","","","","",""] },
+    { name: "Horeca Totaal Centraal Magazijn", products: ["","","","","","","",""] },
+    { name: "Devisch Foodservice BV", products: ["","","","","","","",""] },
+    { name: "CONWAY - The Convenience Company België NV/SA", products: ["","","","","","","",""] },
+    { name: "I.L.I.S. sa", products: ["","","","","","","",""] },
+    { name: "Jansen Foodservice Apeldoorn", products: ["","","","","","","",""] },
+    { name: "BV Horeca Foods Oostende", products: ["","","","","","","",""] },
+    { name: "Horeca Meeuwissen NV", products: ["","","","","","","",""] },
+    { name: "BV Horeca Foods Brugge", products: ["","","","","","","",""] },
+    { name: "Spuntini BVBA - Deerlijk", products: ["","","","","","","",""] },
+    { name: "Fiers Gent", products: ["","","","","","","",""] },
+    { name: "DeliNova", products: ["","","","","","","",""] },
+    { name: "Esca Food Service BV", products: ["","","","","","","",""] },
+    { name: "Devisch Foodservice BV", products: ["","","","","","","",""] },
+    { name: "Visco Horeca", products: ["","","","","","","",""] },
+    { name: "Ryal Distribution", products: ["","","","","","","",""] },
+    { name: "Spuntini Wattrelos", products: ["","","","","","","",""] },
+    { name: "Génédis", products: ["","","","","","","",""] },
+    { name: "Spuntini Food's", products: ["","","","","","","",""] },
+    { name: "HorecaHeren BV.", products: ["","","","","","","",""] },
+    { name: "Van De Ven Vleeswaren B.V.", products: ["","","","","","","",""] },
+    { name: "QSTA NL", products: ["11115277","","11135283","11145286","","11165292","11175295",""] },
+    { name: "Makro NL", products: ["","","","","","","",""] },
+    { name: "CULIVIER by Pinki", products: ["","","","","","","",""] },
+    { name: "Fincioen BV", products: ["","","","","","","",""] },
+    { name: "Fontijn Vlees en Vleeswaren B.V.", products: ["","","","","","","",""] },
+    { name: "Precon NV", products: ["","","","","","","",""] }
   ];
 
   const body = document.getElementById("supplierBody");
@@ -743,9 +761,9 @@ h
   function renderTable(term = "") {
     const q = term.trim().toLowerCase();
 
-    const filtered = suppliers.filter(supplier =>
-      supplier.name.toLowerCase().includes(q)
-    );
+    const filtered = suppliers
+      .filter(supplier => supplier.name.toLowerCase().includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name, "nl", { sensitivity: "base" }));
 
     body.innerHTML = filtered.map(supplier => {
       const completed = supplier.products.filter(value => String(value).trim() !== "").length;
@@ -765,7 +783,7 @@ h
       }).join("");
 
       const status = allDone
-        ? `<span class="badge future">★ Fit for the Future</span>`
+        ? `<span class="check-badge" title="Alle artikelen aangemaakt" aria-label="Alle artikelen aangemaakt">✔</span>`
         : `<span class="badge progress ${completed === 0 ? "zero" : ""}">${completed} / ${supplier.products.length}</span>
            <div class="progress-note">artikelen aangemaakt</div>`;
 
