@@ -8,6 +8,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nieuwe producten per groothandel (België) | LA Streetfood</title>
+<script>
+  /* Met ?land=nederland (of ?land=nl) achter de link opent direct de Nederlandse lijst. */
+  (function () {
+    var land = new URLSearchParams(location.search).get("land");
+    if (land === "nederland" || land === "nl") {
+      location.replace("index.html");
+    }
+  })();
+</script>
 <style>
   :root {
     --la-green: #24513c;
