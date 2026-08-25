@@ -685,7 +685,55 @@
     fontijn: "fontijn.png"
   };
 
+  /*
+   * Voor de leveranciers hieronder gebruiken we het icoontje (favicon)
+   * van hun eigen website als mini-logo. Laadt dat niet, dan verschijnen
+   * automatisch de initialen. Nieuwe leverancier? Voeg hier gewoon
+   * "Naam zoals in de lijst": "website.nl" toe.
+   */
+  const supplierDomains = {
+    "Agora Culinair Vleesboerke": "agoraculinair.be",
+    "Agora Culinair Vleminckx": "agoraculinair.be",
+    "Biervliet Freez Center": "freezcenter.be",
+    "Bosteels": "snacksbosteels.be",
+    "Buysse Snacks Horeca": "buyssesnacks.be",
+    "Castelein": "casteleinonline.be",
+    "De Ruytter": "deruytter.be",
+    "Délisalades": "deli.be",
+    "Devlieger Filip BVBA": "devliegerfilip.be",
+    "EM Messiaen Horecaservice": "horeca-messiaen.be",
+    "Fiers Gent": "fiers.net",
+    "Good'nFood - Massafrit": "goodnfood.be",
+    "Horeca Meeuwissen NV": "horecameeuwissen.be",
+    "Horecaservice Nevejan": "nevejan.eu",
+    "I.L.I.S. sa": "ilis.be",
+    "Koffiebranderij Degroof BVBA": "degroof-food.be",
+    "MAISON DESPRIET": "maisondespriet.com",
+    "Noyez": "noyezsnacks.be",
+    "Precon NV": "precon.be",
+    "Ramaut - Ramhoreca SA": "ramaut.be",
+    "ROOMCENTRALE DRIESEN NV": "driesen.biz",
+    "S.A COMPTOIR DES FAGNES": "comptoirdesfagnes.com",
+    "Seru Resto Service": "van-keuken-tot-tafel.be",
+    "Snoep & Horecacenter Lingier": "snoepcenterlingier.be",
+    "Solucious NV": "solucious.be",
+    "Solucious NV - LOT": "solucious.be",
+    "Solucious NV - XPO Logistics": "solucious.be",
+    "T’SEYEN FOODSERVICE": "tseyenfoodservice.be",
+    "Van Hout Horeca NV": "vanhouthoreca.be",
+    "Vandael Horeca NV": "vandaelhoreca.be",
+    "VMS Fine Food": "vmsfinefood.be",
+    "Warlop Horeca Service NV": "warlophoreca.be",
+    "Givana XL": "givana.be"
+  };
+
+  function faviconLogo(domain) {
+    return "https://icons.duckduckgo.com/ip3/" + domain + ".ico";
+  }
+
   function getSupplierLogo(name) {
+    if (supplierDomains[name]) return faviconLogo(supplierDomains[name]);
+
     const lower = name.toLowerCase();
 
     if (lower.includes("horesca")) return supplierLogos.horesca;
@@ -699,7 +747,7 @@
     if (lower.includes("de groot grootverbruik")) return supplierLogos.degroot;
     if (lower.includes("chefs culinar")) return supplierLogos.chefs;
     if (lower.includes("jansma wijhe")) return supplierLogos.jansma;
-    if (lower.includes("spuntini")) return supplierLogos.logo_text;
+    if (lower.includes("spuntini") || lower.includes("génédis") || lower.includes("ryal distribution") || lower.includes("culinair service") || lower.includes("free foods")) return supplierLogos.logo_text;
     if (lower.includes("conway")) return supplierLogos.conway;
     if (lower.includes("makro")) return supplierLogos.makro;
     if (lower.includes("bellimmo")) return supplierLogos.bellimmo;
@@ -723,10 +771,11 @@
 
   function supplierLogoHtml(name) {
     const logo = getSupplierLogo(name);
+    const initials = supplierInitials(name);
     if (logo) {
-      return `<span class="supplier-logo brand-logo"><img src="${logo}" alt=""></span>`;
+      return `<span class="supplier-logo brand-logo"><img src="${logo}" alt="" loading="lazy" onerror="this.parentElement.classList.remove('brand-logo');this.parentElement.textContent='${initials}'"></span>`;
     }
-    return `<span class="supplier-logo">${supplierInitials(name)}</span>`;
+    return `<span class="supplier-logo">${initials}</span>`;
   }
 
   function renderTable(term = "") {
