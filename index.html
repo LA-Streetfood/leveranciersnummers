@@ -776,14 +776,15 @@
     "Koffiebranderij Degroof BVBA": "degroof",
     "ROOMCENTRALE DRIESEN NV": "driesen",
     "Snoep & Horecacenter Lingier": "lingier",
-    "VMS Fine Food": "vmsfinefood"
+    "VMS Fine Food": "vmsfinefood",
+    "Vandael Horeca NV": "vandael"
   };
 
   function supplierLogoHtml(name) {
     const initials = supplierInitials(name);
     let sources = [];
     if (localLogoFiles[name]) {
-      sources = [localLogoFiles[name] + ".png", localLogoFiles[name] + ".jpg"];
+      sources = [".png", ".jpg", ".webp", ".avif"].map(ext => localLogoFiles[name] + ext);
     }
     if (supplierDomains[name]) {
       sources = sources.concat(faviconSources(supplierDomains[name]));
