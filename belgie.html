@@ -727,13 +727,33 @@
     "Givana XL": "givana.be"
   };
 
-  function faviconLogo(domain) {
-    return "https://icons.duckduckgo.com/ip3/" + domain + ".ico";
+  /*
+   * Voor het mini-logo proberen we meerdere bronnen na elkaar:
+   * 1. het icoontje via DuckDuckGo, 2. de favicon direct van de site,
+   * 3. idem met www., 4. de icoontjesdienst van Google.
+   * Faalt alles, dan tonen we de initialen.
+   */
+  function faviconSources(domain) {
+    return [
+      "https://icons.duckduckgo.com/ip3/" + domain + ".ico",
+      "https://" + domain + "/favicon.ico",
+      "https://www." + domain + "/favicon.ico",
+      "https://www.google.com/s2/favicons?domain=" + domain + "&sz=64"
+    ];
+  }
+
+  function logoFallback(img, initials) {
+    const alts = (img.dataset.alts || "").split("|").filter(Boolean);
+    if (alts.length) {
+      img.dataset.alts = alts.slice(1).join("|");
+      img.src = alts[0];
+    } else {
+      img.parentElement.classList.remove("brand-logo");
+      img.parentElement.textContent = initials;
+    }
   }
 
   function getSupplierLogo(name) {
-    if (supplierDomains[name]) return faviconLogo(supplierDomains[name]);
-
     const lower = name.toLowerCase();
 
     if (lower.includes("horesca")) return supplierLogos.horesca;
@@ -770,10 +790,16 @@
   }
 
   function supplierLogoHtml(name) {
-    const logo = getSupplierLogo(name);
     const initials = supplierInitials(name);
-    if (logo) {
-      return `<span class="supplier-logo brand-logo"><img src="${logo}" alt="" loading="lazy" onerror="this.parentElement.classList.remove('brand-logo');this.parentElement.textContent='${initials}'"></span>`;
+    let sources = [];
+    if (supplierDomains[name]) {
+      sources = faviconSources(supplierDomains[name]);
+    } else {
+      const logo = getSupplierLogo(name);
+      if (logo) sources = [logo];
+    }
+    if (sources.length) {
+      return `<span class="supplier-logo brand-logo"><img src="${sources[0]}" alt="" loading="lazy" data-alts="${sources.slice(1).join("|")}" onerror="logoFallback(this, '${initials}')"></span>`;
     }
     return `<span class="supplier-logo">${initials}</span>`;
   }
