@@ -712,7 +712,7 @@
     "Noyez": "noyezsnacks.be",
     "Precon NV": "precon.be",
     "Ramaut - Ramhoreca SA": "ramaut.be",
-    "ROOMCENTRALE DRIESEN NV": "driesen.biz",
+    "ROOMCENTRALE DRIESEN NV": "orestofoodpartners.be",
     "S.A COMPTOIR DES FAGNES": "comptoirdesfagnes.com",
     "Seru Resto Service": "van-keuken-tot-tafel.be",
     "Snoep & Horecacenter Lingier": "snoepcenterlingier.be",
@@ -789,12 +789,31 @@
     return "";
   }
 
+  /*
+   * Eigen logobestanden in deze map gaan vóór alle automatische bronnen.
+   * Upload bijv. delisalades.png (of .jpg) en het wordt vanzelf gebruikt.
+   */
+  const localLogoFiles = {
+    "Biervliet Freez Center": "freezcenter",
+    "Horeca Groothandel Tilburg": "hgtilburg",
+    "Délisalades": "delisalades",
+    "Good'nFood - Massafrit": "goodnfood",
+    "I.L.I.S. sa": "ilis",
+    "Koffiebranderij Degroof BVBA": "degroof",
+    "ROOMCENTRALE DRIESEN NV": "driesen",
+    "Snoep & Horecacenter Lingier": "lingier",
+    "VMS Fine Food": "vmsfinefood"
+  };
+
   function supplierLogoHtml(name) {
     const initials = supplierInitials(name);
     let sources = [];
+    if (localLogoFiles[name]) {
+      sources = [localLogoFiles[name] + ".png", localLogoFiles[name] + ".jpg"];
+    }
     if (supplierDomains[name]) {
-      sources = faviconSources(supplierDomains[name]);
-    } else {
+      sources = sources.concat(faviconSources(supplierDomains[name]));
+    } else if (!sources.length) {
       const logo = getSupplierLogo(name);
       if (logo) sources = [logo];
     }
