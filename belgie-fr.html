@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <!-- GitHub Pages versie: houd index.html en de map  bij elkaar. -->
-<html lang="nl">
+<html lang="fr">
 <head>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:wght@300;700&display=swap" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nieuwe producten per groothandel | LA Streetfood</title>
+<title>Nouveaux produits par grossiste (Belgique) | LA Streetfood</title>
 <script>
-  /*
-   * Met ?land=belgie (of ?land=be) achter de link opent direct de
-   * Belgische lijst. Voorbeeld:
-   * https://la-streetfood.github.io/leveranciersnummers/?land=belgie
-   */
+  /* ?land=belgie opent de Nederlandstalige Belgische lijst; ?land=nederland de Nederlandse. */
   (function () {
     var land = new URLSearchParams(location.search).get("land");
+    if (land === "nederland" || land === "nl") {
+      location.replace("index.html");
+    }
     if (land === "belgie" || land === "be") {
       location.replace("belgie.html");
-    }
-    if (land === "fr" || land === "belgie-fr") {
-      location.replace("belgie-fr.html");
     }
   })();
 </script>
@@ -525,8 +521,8 @@
     <div class="la-title">
       <img class="la-logo" src="la-streetfood.png" alt="LA Streetfood">
       <div class="la-heading-wrap">
-        <span class="la-heading-main">Nieuwe producten per groothandel</span>
-        <span class="la-country-link"><a href="belgie.html">Naar Belgische leveranciers &rarr;</a></span>
+        <span class="la-heading-main">Nouveaux produits par grossiste – Belgique</span>
+        <span class="la-country-link"><a href="belgie.html">Nederlandstalige versie &rarr;</a></span>
       </div>
     </div>
 
@@ -535,8 +531,8 @@
         id="supplierFilter"
         class="search"
         type="search"
-        placeholder="Vind jouw groothandel..."
-        aria-label="Vind groothandel">
+        placeholder="Trouvez votre grossiste..."
+        aria-label="Trouver votre grossiste">
     </div>
   </div>
 <div class="table-shell">
@@ -544,19 +540,20 @@
       <table>
         <thead>
           <tr>
-            <th>Groothandel</th><th><span class="product-name">Authentic Mexican Cheese Sauce</span><span class="la-code">LA152</span></th><th><span class="product-name">Triple Stack Bun</span><span class="la-code">LA824</span></th><th><span class="product-name">Shrimp Popcorn</span><span class="la-code">LA768</span></th><th><span class="product-name">American Sub Sandwich</span><span class="la-code">LA823</span></th><th><span class="product-name">Texas Hotlink</span><span class="la-code">LA7600</span></th><th><span class="product-name">Steakhouse Burger</span><span class="la-code">LA882</span></th><th><span class="product-name">Ube Cheese Cake</span><span class="la-code">LA979</span></th><th><span class="product-name">American Dill Pickles</span><span class="la-code">LA115</span></th><th>Status</th>
+            <th>Grossiste</th><th><span class="product-name">Authentic Mexican Cheese Sauce</span><span class="la-code">LA152</span></th><th><span class="product-name">Triple Stack Bun</span><span class="la-code">LA824</span></th><th><span class="product-name">Shrimp Popcorn</span><span class="la-code">LA768</span></th><th><span class="product-name">American Sub Sandwich</span><span class="la-code">LA823</span></th><th><span class="product-name">Texas Hotlink</span><span class="la-code">LA7600</span></th><th><span class="product-name">Steakhouse Burger</span><span class="la-code">LA882</span></th><th><span class="product-name">Ube Cheese Cake</span><span class="la-code">LA979</span></th><th><span class="product-name">American Dill Pickles</span><span class="la-code">LA115</span></th><th>Statut</th>
           </tr>
         </thead>
         <tbody id="supplierBody"></tbody>
       </table>
     </div>
-    <div id="emptyState" class="empty">Geen leverancier gevonden.</div>
+    <div id="emptyState" class="empty">Aucun fournisseur trouv&eacute;.</div>
   </div>
 </div>
 
+<script src="leveranciers-belgie.js"></script>
 <script>
   /*
-   * HIER BEHEER JE DE ARTIKELNUMMERS PER LEVERANCIER.
+   * LET OP: de artikelnummers beheer je voortaan in leveranciers-belgie.js.
    *
    * Voorbeeld:
    * products: ["123456", "", "ABC789", "", "", "", "", ""]
@@ -568,66 +565,12 @@
    * De LA-codes in de kolomkoppen zijn:
    * LA152, LA824, LA768, LA823, LA7600, LA882, LA979 en LA115.
    *
-   * Deze versie bevat alleen de NEDERLANDSE leveranciers.
-   * De Belgische leveranciers staan in belgie.html.
+   * Deze versie bevat alleen de BELGISCHE leveranciers.
+   * De Nederlandse leveranciers staan in index.html.
    * De lijst wordt automatisch alfabetisch gesorteerd.
    */
 
-  const suppliers = [
-    { name: "Becker-Royen Maastricht", products: ["","","","","","","",""] },
-    { name: "Bidfood Amsterdam / Verscentrum", products: ["","","","","","","",""] },
-    { name: "Bidfood Burgh Haamstede", products: ["","","","","","","",""] },
-    { name: "Bidfood Drachten", products: ["","","","","","","",""] },
-    { name: "Bidfood Ede / DKW", products: ["","","","","","","",""] },
-    { name: "Bidfood Ede / LVC", products: ["","","","","","","",""] },
-    { name: "Bidfood Emmen", products: ["","","","","","","",""] },
-    { name: "Bidfood Geleen", products: ["","","","","","","",""] },
-    { name: "Bidfood Goirle", products: ["","","","","","","",""] },
-    { name: "Bidfood Groningen", products: ["","","","","","","",""] },
-    { name: "Bidfood Harderwijk", products: ["0315221","","0335227","0345230","","0365236","0375239",""] },
-    { name: "Bidfood Helmond", products: ["","","","","","","",""] },
-    { name: "Bidfood Hengelo", products: ["","","","","","","",""] },
-    { name: "Bidfood Hoofddorp", products: ["","","","","","","",""] },
-    { name: "Bidfood Meppel", products: ["","","","","","","",""] },
-    { name: "Bidfood Nieuwegein", products: ["","","","","","","",""] },
-    { name: "Bidfood Schiedam", products: ["","","","","","","",""] },
-    { name: "Bidfood Utrecht", products: ["5915213","5925216","","5945222","5955225","","5975231",""] },
-    { name: "Broekhuyzen Horecagroothandel Noordwijkerhout", products: ["","","","","","","",""] },
-    { name: "Chefs Culinar", products: ["1515205","1525208","1535211","1545214","1555217","1565220","1575223",""] },
-    { name: "Combigro Helmink Foodservice Zutphen", products: ["","","","","","","",""] },
-    { name: "De Groot Grootverbruik Den Hoorn", products: ["","","","","","","",""] },
-    { name: "Dékro Horeca Totaal Ravenstein", products: ["","","","","","","",""] },
-    { name: "DeliNova", products: ["","","","","","","",""] },
-    { name: "Fontijn Vlees en Vleeswaren B.V.", products: ["","","","","","","",""] },
-    { name: "Foodimpuls", products: ["","","","","","","",""] },
-    { name: "Foodpartners Woerden", products: ["","","","","","","",""] },
-    { name: "G&B Yerseke", products: ["","","","","","","",""] },
-    { name: "Het Vitamientje", products: ["","","","","","","",""] },
-    { name: "Horeca Groothandel Tilburg", products: ["","","","","","","",""] },
-    { name: "HorecaHeren BV.", products: ["","","","","","","",""] },
-    { name: "Horesca Horecavo Leiderdorp", products: ["0115207","0125210","0135213","0145216","0155219","0165222","0175225",""] },
-    { name: "Horesca Lieferink Raamsdonksveer", products: ["","","","","","","",""] },
-    { name: "Horesca Lieferink Twello", products: ["0215214","0225217","","0245223","0255226","","0275232",""] },
-    { name: "Horesca Lieferink Zeist", products: ["","","","","","","",""] },
-    { name: "Horesca Meppel", products: ["","0425231","0435234","","0455240","0465243","",""] },
-    { name: "Horesca Smulders Goirle", products: ["0515235","0525238","0535241","0545244","0555247","0565250","0575253",""] },
-    { name: "Jansen Foodservice Apeldoorn", products: ["","","","","","","",""] },
-    { name: "Jansen Foodservice Doetinchem", products: ["0815256","0825259","","0845265","0855268","","0875274",""] },
-    { name: "Jansen Foodservice Lochem", products: ["","","","","","","",""] },
-    { name: "Jansma Wijhe", products: ["","","","","","","",""] },
-    { name: "Krikke Culinair Grou", products: ["","","","","","","",""] },
-    { name: "Makro NL", products: ["","","","","","","",""] },
-    { name: "Peters Vleeswaren", products: ["","","","","","","",""] },
-    { name: "QSTA NL", products: ["11115277","","11135283","11145286","","11165292","11175295",""] },
-    { name: "Van De Ven Vleeswaren B.V.", products: ["","","","","","","",""] },
-    { name: "Veldboer Eenhoorn Zwaag", products: ["","","","","","","",""] },
-    { name: "VHC ActiFood", products: ["","","","","","","",""] },
-    { name: "VHC Jongens Almere", products: ["","","","","","","",""] },
-    { name: "VHC Jongens Oostzaan", products: ["","1025273","1035276","","1055282","1065285","",""] },
-    { name: "VHC Kreko Pijnacker", products: ["","","","","","","",""] },
-    { name: "VHC Kreko Zevenbergen", products: ["","","","","","","",""] },
-    { name: "Visco Horeca", products: ["","","","","","","",""] }
-  ];
+  /* De leverancierslijst staat in leveranciers-belgie.js (gedeeld met de Franse versie belgie-fr.html). */
 
   const body = document.getElementById("supplierBody");
   const filter = document.getElementById("supplierFilter");
@@ -692,16 +635,39 @@
    * "Naam zoals in de lijst": "website.nl" toe.
    */
   const supplierDomains = {
-    "Broekhuyzen Horecagroothandel Noordwijkerhout": "broekhuyzen.nl",
-    "Dékro Horeca Totaal Ravenstein": "dekro.nl",
-    "Foodpartners Woerden": "foodpartners.nl",
-    "Horeca Groothandel Tilburg": "hgt-tilburg.nl",
-    "QSTA NL": "qsta.nl",
-    "G&B Yerseke": "genbyerseke.nl",
-    "Het Vitamientje": "hetvitamientje.nl",
-    "Peters Vleeswaren": "petersvleeswaren.nl",
-    "Foodimpuls": "foodimpuls.nl",
-    "DeliNova": "deli-nova.com"
+    "Agora Culinair Vleesboerke": "agoraculinair.be",
+    "Agora Culinair Vleminckx": "agoraculinair.be",
+    "Biervliet Freez Center": "freezcenter.be",
+    "Bosteels": "snacksbosteels.be",
+    "Buysse Snacks Horeca": "buyssesnacks.be",
+    "Castelein": "casteleinonline.be",
+    "De Ruytter": "deruytter.be",
+    "Délisalades": "deli.be",
+    "Devlieger Filip BVBA": "devliegerfilip.be",
+    "EM Messiaen Horecaservice": "horeca-messiaen.be",
+    "Fiers Gent": "fiers.net",
+    "Good'nFood - Massafrit": "goodnfood.be",
+    "Horeca Meeuwissen NV": "horecameeuwissen.be",
+    "Horecaservice Nevejan": "nevejan.eu",
+    "I.L.I.S. sa": "ilis.be",
+    "Koffiebranderij Degroof BVBA": "degroof-food.be",
+    "MAISON DESPRIET": "maisondespriet.com",
+    "Noyez": "noyezsnacks.be",
+    "Precon NV": "precon.be",
+    "Ramaut - Ramhoreca SA": "ramaut.be",
+    "ROOMCENTRALE DRIESEN NV": "orestofoodpartners.be",
+    "S.A COMPTOIR DES FAGNES": "comptoirdesfagnes.com",
+    "Seru Resto Service": "van-keuken-tot-tafel.be",
+    "Snoep & Horecacenter Lingier": "snoepcenterlingier.be",
+    "Solucious NV": "solucious.be",
+    "Solucious NV - LOT": "solucious.be",
+    "Solucious NV - XPO Logistics": "solucious.be",
+    "T’SEYEN FOODSERVICE": "tseyenfoodservice.be",
+    "Van Hout Horeca NV": "vanhouthoreca.be",
+    "Vandael Horeca NV": "vandaelhoreca.be",
+    "VMS Fine Food": "vmsfinefood.be",
+    "Warlop Horeca Service NV": "warlophoreca.be",
+    "Givana XL": "givana.be"
   };
 
   /*
@@ -744,7 +710,7 @@
     if (lower.includes("de groot grootverbruik")) return supplierLogos.degroot;
     if (lower.includes("chefs culinar")) return supplierLogos.chefs;
     if (lower.includes("jansma wijhe")) return supplierLogos.jansma;
-    if (lower.includes("spuntini") || lower.includes("génédis") || lower.includes("ryal distribution")) return supplierLogos.logo_text;
+    if (lower.includes("spuntini") || lower.includes("génédis") || lower.includes("ryal distribution") || lower.includes("culinair service") || lower.includes("free foods")) return supplierLogos.logo_text;
     if (lower.includes("conway")) return supplierLogos.conway;
     if (lower.includes("makro")) return supplierLogos.makro;
     if (lower.includes("bellimmo")) return supplierLogos.bellimmo;
@@ -819,16 +785,16 @@
           <td>
             ${value
               ? `<span class="article-number">${value}</span>`
-              : `<span class="not-available-x" title="Nog niet beschikbaar" aria-label="Nog niet beschikbaar">×</span>`
+              : `<span class="not-available-x" title="Pas encore disponible" aria-label="Pas encore disponible">×</span>`
             }
           </td>
         `;
       }).join("");
 
       const status = allDone
-        ? `<span class="check-badge" title="Alle artikelen aangemaakt" aria-label="Alle artikelen aangemaakt">✔</span>`
+        ? `<span class="check-badge" title="Tous les articles cr&eacute;&eacute;s" aria-label="Tous les articles cr&eacute;&eacute;s">✔</span>`
         : `<span class="badge progress ${completed === 0 ? "zero" : ""}">${completed} / ${supplier.products.length}</span>
-           <div class="progress-note">artikelen aangemaakt</div>`;
+           <div class="progress-note">articles cr&eacute;&eacute;s</div>`;
 
       const rowClasses = [
         allDone ? "future-ready" : "",
