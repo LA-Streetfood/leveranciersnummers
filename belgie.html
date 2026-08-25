@@ -685,7 +685,22 @@
     fontijn: "fontijn.png"
   };
 
+  /*
+   * Voor de leveranciers hieronder gebruiken we het icoontje (favicon)
+   * van hun eigen website als mini-logo. Laadt dat niet, dan verschijnen
+   * automatisch de initialen. Nieuwe leverancier? Voeg hier gewoon
+   * "Naam zoals in de lijst": "website.nl" toe.
+   */
+  const supplierDomains = {
+  };
+
+  function faviconLogo(domain) {
+    return "https://icons.duckduckgo.com/ip3/" + domain + ".ico";
+  }
+
   function getSupplierLogo(name) {
+    if (supplierDomains[name]) return faviconLogo(supplierDomains[name]);
+
     const lower = name.toLowerCase();
 
     if (lower.includes("horesca")) return supplierLogos.horesca;
@@ -699,7 +714,7 @@
     if (lower.includes("de groot grootverbruik")) return supplierLogos.degroot;
     if (lower.includes("chefs culinar")) return supplierLogos.chefs;
     if (lower.includes("jansma wijhe")) return supplierLogos.jansma;
-    if (lower.includes("spuntini")) return supplierLogos.logo_text;
+    if (lower.includes("spuntini") || lower.includes("génédis") || lower.includes("ryal distribution")) return supplierLogos.logo_text;
     if (lower.includes("conway")) return supplierLogos.conway;
     if (lower.includes("makro")) return supplierLogos.makro;
     if (lower.includes("bellimmo")) return supplierLogos.bellimmo;
@@ -723,10 +738,11 @@
 
   function supplierLogoHtml(name) {
     const logo = getSupplierLogo(name);
+    const initials = supplierInitials(name);
     if (logo) {
-      return `<span class="supplier-logo brand-logo"><img src="${logo}" alt=""></span>`;
+      return `<span class="supplier-logo brand-logo"><img src="${logo}" alt="" loading="lazy" onerror="this.parentElement.classList.remove('brand-logo');this.parentElement.textContent='${initials}'"></span>`;
     }
-    return `<span class="supplier-logo">${supplierInitials(name)}</span>`;
+    return `<span class="supplier-logo">${initials}</span>`;
   }
 
   function renderTable(term = "") {
