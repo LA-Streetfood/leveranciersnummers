@@ -16,7 +16,7 @@ const suppliers = [
     { name: "Bidfood de Clercq", products: ["","","","","","","",""] },
     { name: "Bidfood Horeca Service", products: ["","","","","","","",""] },
     { name: "Bidfood makady NV", products: ["","","","","","","",""] },
-    { name: "Biervliet Freez Center", products: ["","","","","","","",""] },
+    { name: "Biervliet Freez Center", products: ["LA152","LA824","LA768","LA823","LA7600","LA882","LA979","LA115"] },
     { name: "Bosteels", products: ["","","","","","","",""] },
     { name: "Buysse Snacks Horeca", products: ["","","","","","","",""] },
     { name: "BV Horeca Foods Brugge", products: ["","","","","","","",""] },
