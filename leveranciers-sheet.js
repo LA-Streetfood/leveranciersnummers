@@ -66,14 +66,36 @@ function laParseCsv(text) {
   return rows.filter(cells => cells.some(cell => cell.trim() !== ""));
 }
 
+/*
+ * Zoekt de koprij: de eerste rij (van de eerste vijf) met zowel een kolom
+ * Groothandel als minstens één kolom die met een LA-code begint. Zo maken
+ * titelregels boven de tabel niet uit, en merken we het meteen als Google de
+ * koppen niet meestuurt.
+ */
+function laVindKoprij(rows) {
+  const grens = Math.min(rows.length, 5);
+  for (let i = 0; i < grens; i++) {
+    const headers = rows[i].map(cell => cell.trim());
+    const heeftNaam = headers.some(cell => /^(groothandel|leverancier)$/i.test(cell));
+    const heeftCode = headers.some(cell => /^\s*LA\s*\d+/i.test(cell));
+    if (heeftNaam && heeftCode) return i;
+  }
+  return -1;
+}
+
 /* Maakt van de CSV-rijen de leverancierslijst voor één land ("NL" of "BE"). */
 function laRowsToSuppliers(rows, land) {
   if (!rows.length) return [];
 
-  const headers = rows[0].map(cell => cell.trim());
+  const koprij = laVindKoprij(rows);
+  if (koprij === -1) {
+    throw new Error("Geen koprij gevonden met zowel 'Groothandel' als een LA-kolom. " +
+      "De lijst wordt niet gebruikt, want dan zouden alle nummers leeg zijn.");
+  }
+
+  const headers = rows[koprij].map(cell => cell.trim());
   const landIndex = headers.findIndex(cell => /^land$/i.test(cell));
   const nameIndex = headers.findIndex(cell => /^(groothandel|leverancier)$/i.test(cell));
-  if (nameIndex === -1) throw new Error("Kolom 'Groothandel' ontbreekt in de Sheet.");
 
   /* Zoek per LA-code de bijbehorende kolom, zodat de volgorde in de Sheet vrij is. */
   const codeIndex = {};
@@ -84,7 +106,7 @@ function laRowsToSuppliers(rows, land) {
 
   const wanted = String(land).toUpperCase();
 
-  return rows.slice(1)
+  return rows.slice(koprij + 1)
     .filter(cells => {
       const name = (cells[nameIndex] || "").trim();
       if (!name) return false;
@@ -105,7 +127,7 @@ function laSheetViaCsv(land) {
   if (!window.fetch) return Promise.reject(new Error("deze browser kan geen fetch"));
 
   const url = "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
-    "/gviz/tq?tqx=out:csv&headers=0&t=" + Date.now();
+    "/gviz/tq?tqx=out:csv&headers=1&t=" + Date.now();
 
   return fetch(url, { cache: "no-store" })
     .then(response => {
@@ -144,11 +166,12 @@ function laSheetViaScript(land) {
         const koppen = (tabel.cols || []).map(kolom => String((kolom || {}).label || "").trim());
         const waarde = cel => {
           if (!cel) return "";
+          /* Bij een getal de onbewerkte waarde: de opgemaakte versie van
+             Google maakt van 176025 al gauw "176.025". */
+          if (typeof cel.v === "number") return String(cel.v);
+          if (typeof cel.v === "string" && cel.v !== "") return cel.v;
           if (cel.f !== undefined && cel.f !== null) return String(cel.f);
-          if (cel.v === undefined || cel.v === null) return "";
-          return typeof cel.v === "number" && Number.isInteger(cel.v)
-            ? String(cel.v)
-            : String(cel.v);
+          return "";
         };
         const rijen = (tabel.rows || []).map(rij => (rij.c || []).map(waarde));
         resolve(laRowsToSuppliers([koppen].concat(rijen), land));
