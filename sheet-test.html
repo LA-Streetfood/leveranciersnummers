@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<!--
+  Testpagina. Laat zien wat Google precies terugstuurt en hoe de pagina dat
+  leest. Handig als de nummers op de site niet kloppen. Niet bedoeld voor
+  bezoekers; hij staat nergens in het menu.
+-->
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test: wat stuurt de Google Sheet terug?</title>
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    background: #ffffff;
+    color: #17221c;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    line-height: 1.5;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .intro { color: #6b746f; margin: 0 0 20px; }
+  section {
+    border: 1px solid #e8dfcf;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  h2 { font-size: 15px; margin: 0 0 8px; }
+  .status { font-weight: 700; }
+  .goed { color: #24513c; }
+  .fout { color: #b9473f; }
+  .bezig { color: #6b746f; }
+  pre {
+    background: #f6f4ef;
+    border-radius: 6px;
+    padding: 10px;
+    overflow-x: auto;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 8px 0 0;
+  }
+  button {
+    font: inherit;
+    font-weight: 700;
+    background: #24513c;
+    color: white;
+    border: 0;
+    border-radius: 6px;
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+  #kopieerMelding { margin-left: 10px; color: #24513c; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<h1>Test: wat stuurt de Google Sheet terug?</h1>
+<p class="intro">
+  Deze pagina haalt de Sheet op dezelfde twee manieren op als de echte pagina,
+  en toont onbewerkt wat er terugkomt. Klik onderaan op <em>Kopieer alles</em>
+  en plak dat in het gesprek.
+</p>
+
+<section>
+  <h2>Manier 1 — als CSV</h2>
+  <div id="csvStatus" class="status bezig">bezig…</div>
+  <pre id="csvUit">—</pre>
+</section>
+
+<section>
+  <h2>Manier 2 — via een script-element</h2>
+  <div id="jsonStatus" class="status bezig">bezig…</div>
+  <pre id="jsonUit">—</pre>
+</section>
+
+<section>
+  <h2>Wat de pagina daarvan maakt</h2>
+  <pre id="uitkomst">—</pre>
+</section>
+
+<p>
+  <button id="kopieer">Kopieer alles</button>
+  <span id="kopieerMelding"></span>
+</p>
+
+<script src="leveranciers-sheet.js"></script>
+<script>
+  const toon = (id, tekst) => { document.getElementById(id).textContent = tekst; };
+  const status = (id, tekst, klasse) => {
+    const el = document.getElementById(id);
+    el.textContent = tekst;
+    el.className = "status " + klasse;
+  };
+
+  /* Laat zien hoe de eerste regels eruitzien, met zichtbare scheidingstekens. */
+  function eersteRegels(tekst, aantal) {
+    return tekst.split("\n").slice(0, aantal).map((regel, i) =>
+      "regel " + (i + 1) + ": " + (regel.length > 300 ? regel.slice(0, 300) + " […]" : regel)
+    ).join("\n");
+  }
+
+  function beschrijfLijst(naam, lijst) {
+    if (!lijst) return naam + ": niets bruikbaars";
+    const gevuld = lijst.reduce((totaal, leverancier) =>
+      totaal + leverancier.products.filter(waarde => String(waarde).trim() !== "").length, 0);
+    const voorbeeld = lijst.slice(0, 3).map(leverancier =>
+      "    " + leverancier.name + " -> [" + leverancier.products.join(" | ") + "]").join("\n");
+    return naam + ": " + lijst.length + " leveranciers, " + gevuld + " ingevulde nummers\n" + voorbeeld;
+  }
+
+  const uitkomsten = [];
+
+  /* Manier 1: CSV */
+  const csvUrl = "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
+    "/gviz/tq?tqx=out:csv&headers=1&t=" + Date.now();
+
+  fetch(csvUrl, { cache: "no-store" })
+    .then(antwoord => {
+      if (!antwoord.ok) throw new Error("status " + antwoord.status);
+      return antwoord.text();
+    })
+    .then(tekst => {
+      status("csvStatus", "gelukt — " + tekst.length + " tekens ontvangen", "goed");
+      toon("csvUit", eersteRegels(tekst, 4));
+      const rijen = laParseCsv(tekst);
+      const koppen = (rijen[0] || []).map((kop, i) => i + ": " + JSON.stringify(kop)).join("\n    ");
+      uitkomsten.push("CSV — herkende koppen:\n    " + koppen);
+      uitkomsten.push(beschrijfLijst("CSV — Nederland", laRowsToSuppliers(rijen, "NL")));
+    })
+    .catch(fout => {
+      status("csvStatus", "mislukt — " + fout.message, "fout");
+      toon("csvUit", String(fout));
+      uitkomsten.push("CSV — mislukt: " + fout.message);
+    })
+    .then(() => {
+      /* Manier 2: script-element */
+      const naam = "laTestAntwoord";
+      const script = document.createElement("script");
+
+      const klaar = setTimeout(() => {
+        status("jsonStatus", "mislukt — geen antwoord binnen 10 seconden", "fout");
+        uitkomsten.push("Script — geen antwoord binnen 10 seconden");
+        vulSamenvatting();
+      }, 10000);
+
+      window[naam] = antwoord => {
+        clearTimeout(klaar);
+        const tabel = (antwoord || {}).table || {};
+        const koppen = (tabel.cols || []).map(kolom => String((kolom || {}).label || "").trim());
+        const typen = (tabel.cols || []).map(kolom => (kolom || {}).type);
+        status("jsonStatus", "gelukt — " + koppen.length + " kolommen, " +
+          (tabel.rows || []).length + " rijen", "goed");
+        toon("jsonUit",
+          "koppen: " + JSON.stringify(koppen, null, 1) + "\n\n" +
+          "kolomsoorten: " + JSON.stringify(typen) + "\n\n" +
+          "eerste 2 rijen onbewerkt:\n" +
+          JSON.stringify((tabel.rows || []).slice(0, 2), null, 1));
+        uitkomsten.push("Script — koppen: " + JSON.stringify(koppen));
+        uitkomsten.push("Script — kolomsoorten: " + JSON.stringify(typen));
+        uitkomsten.push("Script — eerste rij: " + JSON.stringify((tabel.rows || [])[0]));
+        vulSamenvatting();
+      };
+
+      script.onerror = () => {
+        clearTimeout(klaar);
+        status("jsonStatus", "mislukt — Sheet niet bereikbaar", "fout");
+        uitkomsten.push("Script — Sheet niet bereikbaar");
+        vulSamenvatting();
+      };
+
+      script.src = "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
+        "/gviz/tq?tqx=out:json;responseHandler:" + naam + "&headers=1&t=" + Date.now();
+      document.head.appendChild(script);
+    });
+
+  function vulSamenvatting() {
+    laLoadSuppliersFromSheet("NL").then(lijst => {
+      uitkomsten.push(beschrijfLijst("Wat de site uiteindelijk toont (Nederland)", lijst));
+      toon("uitkomst", uitkomsten.join("\n\n"));
+    });
+  }
+
+  document.getElementById("kopieer").addEventListener("click", () => {
+    const alles = [
+      "CSV: " + document.getElementById("csvStatus").textContent,
+      document.getElementById("csvUit").textContent,
+      "",
+      "Script: " + document.getElementById("jsonStatus").textContent,
+      document.getElementById("jsonUit").textContent,
+      "",
+      document.getElementById("uitkomst").textContent
+    ].join("\n");
+    navigator.clipboard.writeText(alles).then(
+      () => { document.getElementById("kopieerMelding").textContent = "gekopieerd"; },
+      () => { document.getElementById("kopieerMelding").textContent = "kopiëren lukte niet — maak een schermafdruk"; }
+    );
+  });
+</script>
+
+</body>
+</html>
