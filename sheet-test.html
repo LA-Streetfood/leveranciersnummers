@@ -63,17 +63,7 @@
   en plak dat in het gesprek.
 </p>
 
-<section>
-  <h2>Manier 1 — als CSV</h2>
-  <div id="csvStatus" class="status bezig">bezig…</div>
-  <pre id="csvUit">—</pre>
-</section>
-
-<section>
-  <h2>Manier 2 — via een script-element</h2>
-  <div id="jsonStatus" class="status bezig">bezig…</div>
-  <pre id="jsonUit">—</pre>
-</section>
+<div id="bronnen"></div>
 
 <section>
   <h2>Wat de pagina daarvan maakt</h2>
@@ -87,111 +77,116 @@
 
 <script src="leveranciers-sheet.js"></script>
 <script>
-  const toon = (id, tekst) => { document.getElementById(id).textContent = tekst; };
-  const status = (id, tekst, klasse) => {
-    const el = document.getElementById(id);
-    el.textContent = tekst;
-    el.className = "status " + klasse;
-  };
+  const uitkomsten = [];
+  const bronnenEl = document.getElementById("bronnen");
 
-  /* Laat zien hoe de eerste regels eruitzien, met zichtbare scheidingstekens. */
+  function sectie(titel) {
+    const el = document.createElement("section");
+    el.innerHTML = '<h2></h2><div class="status bezig">bezig…</div><pre>—</pre>';
+    el.querySelector("h2").textContent = titel;
+    bronnenEl.appendChild(el);
+    return {
+      status: (tekst, klasse) => {
+        const s = el.querySelector(".status");
+        s.textContent = tekst;
+        s.className = "status " + klasse;
+      },
+      tekst: waarde => { el.querySelector("pre").textContent = waarde; }
+    };
+  }
+
   function eersteRegels(tekst, aantal) {
     return tekst.split("\n").slice(0, aantal).map((regel, i) =>
       "regel " + (i + 1) + ": " + (regel.length > 300 ? regel.slice(0, 300) + " […]" : regel)
     ).join("\n");
   }
 
-  function beschrijfLijst(naam, lijst) {
-    if (!lijst) return naam + ": niets bruikbaars";
+  function beschrijf(naam, lijst) {
+    if (!lijst || !lijst.length) return naam + ": niets bruikbaars";
     const gevuld = lijst.reduce((totaal, leverancier) =>
       totaal + leverancier.products.filter(waarde => String(waarde).trim() !== "").length, 0);
-    const voorbeeld = lijst.slice(0, 3).map(leverancier =>
-      "    " + leverancier.name + " -> [" + leverancier.products.join(" | ") + "]").join("\n");
-    return naam + ": " + lijst.length + " leveranciers, " + gevuld + " ingevulde nummers\n" + voorbeeld;
+    return naam + ": " + lijst.length + " leveranciers, " + gevuld + " ingevulde nummers";
   }
 
-  const uitkomsten = [];
+  /* Elk CSV-adres apart proberen, zodat zichtbaar is welk adres wat oplevert. */
+  const stappen = laSheetBronnen().map(bron => () => {
+    const vak = sectie("CSV — " + bron.naam);
+    return fetch(bron.url, { cache: "no-store" })
+      .then(antwoord => {
+        if (!antwoord.ok) throw new Error("status " + antwoord.status);
+        return antwoord.text();
+      })
+      .then(tekst => {
+        const rijen = laParseCsv(tekst);
+        let samenvatting;
+        try {
+          const nl = laRowsToSuppliers(rijen, "NL");
+          const be = laRowsToSuppliers(rijen, "BE");
+          samenvatting = beschrijf("Nederland", nl) + "\n" + beschrijf("Belgie", be);
+          const biervliet = be.filter(l => l.name.indexOf("Biervliet") === 0)[0];
+          if (biervliet) samenvatting += "\nBiervliet: [" + biervliet.products.join(" | ") + "]";
+        } catch (fout) {
+          samenvatting = "omzetten mislukt: " + fout.message;
+        }
+        vak.status("gelukt — " + tekst.length + " tekens", "goed");
+        vak.tekst(eersteRegels(tekst, 3) + "\n\n" + samenvatting);
+        uitkomsten.push(bron.naam + " — gelukt\n" + eersteRegels(tekst, 2) + "\n" + samenvatting);
+      })
+      .catch(fout => {
+        vak.status("mislukt — " + fout.message, "fout");
+        vak.tekst(String(fout));
+        uitkomsten.push(bron.naam + " — mislukt: " + fout.message);
+      });
+  });
 
-  /* Manier 1: CSV */
-  const csvUrl = "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
-    "/gviz/tq?tqx=out:csv&headers=1&t=" + Date.now();
+  /* En daarna de manier via een script-element. */
+  stappen.push(() => new Promise(klaarmee => {
+    const vak = sectie("Via een script-element");
+    const naam = "laTestAntwoord";
+    const afgebroken = setTimeout(() => {
+      vak.status("mislukt — geen antwoord binnen 10 seconden", "fout");
+      uitkomsten.push("script-element — geen antwoord binnen 10 seconden");
+      klaarmee();
+    }, 10000);
 
-  fetch(csvUrl, { cache: "no-store" })
-    .then(antwoord => {
-      if (!antwoord.ok) throw new Error("status " + antwoord.status);
-      return antwoord.text();
-    })
-    .then(tekst => {
-      status("csvStatus", "gelukt — " + tekst.length + " tekens ontvangen", "goed");
-      toon("csvUit", eersteRegels(tekst, 4));
-      const rijen = laParseCsv(tekst);
-      const koppen = (rijen[0] || []).map((kop, i) => i + ": " + JSON.stringify(kop)).join("\n    ");
-      uitkomsten.push("CSV — herkende koppen:\n    " + koppen);
-      uitkomsten.push(beschrijfLijst("CSV — Nederland", laRowsToSuppliers(rijen, "NL")));
-    })
-    .catch(fout => {
-      status("csvStatus", "mislukt — " + fout.message, "fout");
-      toon("csvUit", String(fout));
-      uitkomsten.push("CSV — mislukt: " + fout.message);
-    })
-    .then(() => {
-      /* Manier 2: script-element */
-      const naam = "laTestAntwoord";
-      const script = document.createElement("script");
+    window[naam] = antwoord => {
+      clearTimeout(afgebroken);
+      const tabel = (antwoord || {}).table || {};
+      const koppen = (tabel.cols || []).map(kolom => String((kolom || {}).label || "").trim());
+      const typen = (tabel.cols || []).map(kolom => (kolom || {}).type);
+      vak.status("gelukt — " + koppen.length + " kolommen, " + (tabel.rows || []).length + " rijen", "goed");
+      vak.tekst("koppen: " + JSON.stringify(koppen) + "\n\nkolomsoorten: " + JSON.stringify(typen) +
+        "\n\neerste rij onbewerkt:\n" + JSON.stringify((tabel.rows || [])[0]));
+      uitkomsten.push("script-element — koppen: " + JSON.stringify(koppen) +
+        "\nkolomsoorten: " + JSON.stringify(typen));
+      klaarmee();
+    };
 
-      const klaar = setTimeout(() => {
-        status("jsonStatus", "mislukt — geen antwoord binnen 10 seconden", "fout");
-        uitkomsten.push("Script — geen antwoord binnen 10 seconden");
-        vulSamenvatting();
-      }, 10000);
+    const script = document.createElement("script");
+    script.onerror = () => {
+      clearTimeout(afgebroken);
+      vak.status("mislukt — Sheet niet bereikbaar", "fout");
+      uitkomsten.push("script-element — Sheet niet bereikbaar");
+      klaarmee();
+    };
+    script.src = "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
+      "/gviz/tq?tqx=out:json;responseHandler:" + naam + "&headers=1&t=" + Date.now();
+    document.head.appendChild(script);
+  }));
 
-      window[naam] = antwoord => {
-        clearTimeout(klaar);
-        const tabel = (antwoord || {}).table || {};
-        const koppen = (tabel.cols || []).map(kolom => String((kolom || {}).label || "").trim());
-        const typen = (tabel.cols || []).map(kolom => (kolom || {}).type);
-        status("jsonStatus", "gelukt — " + koppen.length + " kolommen, " +
-          (tabel.rows || []).length + " rijen", "goed");
-        toon("jsonUit",
-          "koppen: " + JSON.stringify(koppen, null, 1) + "\n\n" +
-          "kolomsoorten: " + JSON.stringify(typen) + "\n\n" +
-          "eerste 2 rijen onbewerkt:\n" +
-          JSON.stringify((tabel.rows || []).slice(0, 2), null, 1));
-        uitkomsten.push("Script — koppen: " + JSON.stringify(koppen));
-        uitkomsten.push("Script — kolomsoorten: " + JSON.stringify(typen));
-        uitkomsten.push("Script — eerste rij: " + JSON.stringify((tabel.rows || [])[0]));
-        vulSamenvatting();
-      };
-
-      script.onerror = () => {
-        clearTimeout(klaar);
-        status("jsonStatus", "mislukt — Sheet niet bereikbaar", "fout");
-        uitkomsten.push("Script — Sheet niet bereikbaar");
-        vulSamenvatting();
-      };
-
-      script.src = "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
-        "/gviz/tq?tqx=out:json;responseHandler:" + naam + "&headers=1&t=" + Date.now();
-      document.head.appendChild(script);
-    });
-
-  function vulSamenvatting() {
-    laLoadSuppliersFromSheet("NL").then(lijst => {
-      uitkomsten.push(beschrijfLijst("Wat de site uiteindelijk toont (Nederland)", lijst));
-      toon("uitkomst", uitkomsten.join("\n\n"));
-    });
-  }
+  stappen.reduce((rij, stap) => rij.then(stap), Promise.resolve()).then(() =>
+    Promise.all([laLoadSuppliersFromSheet("NL"), laLoadSuppliersFromSheet("BE")])
+  ).then(([nl, be]) => {
+    uitkomsten.push(beschrijf("Wat de site uiteindelijk toont — Nederland", nl));
+    uitkomsten.push(beschrijf("Wat de site uiteindelijk toont — Belgie", be));
+    document.getElementById("uitkomst").textContent = uitkomsten.join("\n\n");
+  });
 
   document.getElementById("kopieer").addEventListener("click", () => {
-    const alles = [
-      "CSV: " + document.getElementById("csvStatus").textContent,
-      document.getElementById("csvUit").textContent,
-      "",
-      "Script: " + document.getElementById("jsonStatus").textContent,
-      document.getElementById("jsonUit").textContent,
-      "",
-      document.getElementById("uitkomst").textContent
-    ].join("\n");
+    const alles = Array.from(document.querySelectorAll("section")).map(el =>
+      el.querySelector("h2").textContent + "\n" +
+      el.querySelector(".status").textContent + "\n" +
+      el.querySelector("pre").textContent).join("\n\n");
     navigator.clipboard.writeText(alles).then(
       () => { document.getElementById("kopieerMelding").textContent = "gekopieerd"; },
       () => { document.getElementById("kopieerMelding").textContent = "kopiëren lukte niet — maak een schermafdruk"; }
