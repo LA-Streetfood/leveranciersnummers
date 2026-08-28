@@ -31,6 +31,15 @@
 
 const LA_SHEET_ID = "19I072XfZ_q9NWnK51LourOh0BSEZv-4H58UPvd5STdY";
 
+/*
+ * Optioneel, maar wel het stevigst: het adres dat je krijgt via
+ * Bestand > Delen > Publiceren op internet > (tabblad) > Door komma's
+ * gescheiden waarden (.csv) > Publiceren. Zo'n adres eindigt op
+ * "/pub?gid=0&single=true&output=csv". Staat hier iets ingevuld, dan wordt dat
+ * als eerste geprobeerd.
+ */
+const LA_GEPUBLICEERDE_CSV = "";
+
 /* Volgorde van de productkolommen in de tabel op de pagina. */
 const LA_PRODUCT_CODES = ["LA152", "LA824", "LA768", "LA823", "LA7600", "LA882", "LA979", "LA115"];
 
@@ -122,19 +131,70 @@ function laRowsToSuppliers(rows, land) {
     }));
 }
 
-/* Manier 1: de Sheet als CSV ophalen. */
+/*
+ * De adressen waarop de Sheet als CSV op te halen is, op volgorde van
+ * betrouwbaarheid. De eerste die een bruikbare lijst oplevert wint.
+ *
+ * Waarom meerdere: het gviz-adres laat Google per kolom één soort inhoud
+ * bepalen. Staan er in een kolom vooral getallen, dan laat Google de
+ * tekstwaarden in die kolom weg — een artikelnummer als "LA152" of "ABC789"
+ * verdwijnt dan stilletjes. De andere twee adressen geven de cellen onbewerkt
+ * terug en hebben dat probleem niet.
+ */
+function laSheetBronnen() {
+  const t = Date.now();
+  const bronnen = [];
+
+  if (LA_GEPUBLICEERDE_CSV) {
+    bronnen.push({
+      naam: "gepubliceerde CSV",
+      url: LA_GEPUBLICEERDE_CSV + (LA_GEPUBLICEERDE_CSV.indexOf("?") === -1 ? "?" : "&") + "t=" + t
+    });
+  }
+
+  bronnen.push({
+    naam: "export-CSV",
+    url: "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID + "/export?format=csv&t=" + t
+  });
+
+  bronnen.push({
+    naam: "gviz-CSV",
+    url: "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
+      "/gviz/tq?tqx=out:csv&headers=1&t=" + t
+  });
+
+  return bronnen;
+}
+
+/* Haalt één adres op en zet het om; werpt een fout als er niets bruikbaars uit komt. */
+function laCsvVanAdres(url, land) {
+  return fetch(url, { cache: "no-store" })
+    .then(response => {
+      if (!response.ok) throw new Error("status " + response.status);
+      return response.text();
+    })
+    .then(text => {
+      const suppliers = laRowsToSuppliers(laParseCsv(text), land);
+      if (!suppliers.length) throw new Error("geen leveranciers gevonden");
+      return suppliers;
+    });
+}
+
+/* Manier 1: de adressen hierboven één voor één proberen. */
 function laSheetViaCsv(land) {
   if (!window.fetch) return Promise.reject(new Error("deze browser kan geen fetch"));
 
-  const url = "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
-    "/gviz/tq?tqx=out:csv&headers=1&t=" + Date.now();
+  const bronnen = laSheetBronnen();
 
-  return fetch(url, { cache: "no-store" })
-    .then(response => {
-      if (!response.ok) throw new Error("Sheet gaf status " + response.status);
-      return response.text();
-    })
-    .then(text => laRowsToSuppliers(laParseCsv(text), land));
+  const probeer = index => {
+    if (index >= bronnen.length) throw new Error("geen enkel CSV-adres werkte");
+    return laCsvVanAdres(bronnen[index].url, land).catch(fout => {
+      console.warn("Sheet ophalen via " + bronnen[index].naam + " lukte niet.", fout);
+      return probeer(index + 1);
+    });
+  };
+
+  return Promise.resolve().then(() => probeer(0));
 }
 
 /*
