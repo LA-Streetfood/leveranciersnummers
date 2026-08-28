@@ -554,17 +554,18 @@
   </div>
 </div>
 
-<script src="leveranciers-bron.js"></script>
+<script src="leveranciers-sheet.js"></script>
 <script>
   /*
-   * DE ARTIKELNUMMERS BEHEER JE NIET MEER HIER.
+   * DE ARTIKELNUMMERS BEHEER JE IN DE GOOGLE SHEET:
+   * https://docs.google.com/spreadsheets/d/19I072XfZ_q9NWnK51LourOh0BSEZv-4H58UPvd5STdY/edit
    *
-   * Deze pagina haalt bij het laden de rijen met Land = NL op; waar die
-   * vandaan komen staat in leveranciers-bron.js (het Excel-bestand in
-   * SharePoint, of anders de Google Sheet).
+   * Deze pagina haalt de rijen met Land = NL bij elke keer laden op uit die
+   * Sheet (zie leveranciers-sheet.js). Aanvullen doe je dus in de Sheet,
+   * niet meer hier.
    *
    * De lijst hieronder blijft staan als terugval: die wordt getoond zolang
-   * de actuele lijst nog niet geladen is, of als die onbereikbaar is.
+   * de Sheet nog niet geladen is, of als hij onbereikbaar is.
    *
    * Een leeg veld toont automatisch een rood kruisje.
    * Zodra alle 8 artikelnummers zijn ingevuld, krijgt de leverancier
@@ -862,11 +863,11 @@ emptyState.style.display = filtered.length ? "none" : "block";
   renderTable();
 
   /*
-   * Haal daarna de actuele nummers op (zie leveranciers-bron.js: eerst het
-   * bestand dat vanuit SharePoint wordt bijgewerkt, anders de Google Sheet).
-   * Lukt geen van beide, dan blijft de lijst hierboven staan.
+   * Haal daarna de actuele nummers op uit de Google Sheet (zie
+   * leveranciers-sheet.js). Lukt dat niet, dan blijft de lijst
+   * hierboven staan.
    */
-  laLaadLeveranciers("NL").then(list => {
+  laLoadSuppliersFromSheet("NL").then(list => {
     if (!list) return;
     activeSuppliers = list;
     renderTable(filter.value);
