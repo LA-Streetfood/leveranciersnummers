@@ -1,0 +1,81 @@
+# Haalt elk uur het Excel-bestand met artikelnummers uit SharePoint en werkt
+# leveranciers-data.json bij, het bestand dat de website uitleest.
+#
+# Instellen: zie INSTELLEN-SHAREPOINT.md. Zolang de drie secrets ontbreken,
+# stopt deze workflow meteen en verandert er niets aan de site.
+
+name: Artikelnummers uit SharePoint bijwerken
+
+on:
+  schedule:
+    - cron: "7 * * * *"      # elk uur, rond 7 minuten over
+  workflow_dispatch:          # handmatig starten via het tabblad Actions
+    inputs:
+      forceer:
+        description: "Ook bijwerken als er veel nummers zouden verdwijnen"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: leveranciersnummers
+  cancel-in-progress: false
+
+jobs:
+  bijwerken:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Controleer of de koppeling is ingesteld
+        id: check
+        env:
+          SP_TENANT_ID: ${{ secrets.SP_TENANT_ID }}
+          SP_CLIENT_ID: ${{ secrets.SP_CLIENT_ID }}
+          SP_CLIENT_SECRET: ${{ secrets.SP_CLIENT_SECRET }}
+        run: |
+          if [ -z "$SP_TENANT_ID" ] || [ -z "$SP_CLIENT_ID" ] || [ -z "$SP_CLIENT_SECRET" ]; then
+            echo "De secrets SP_TENANT_ID, SP_CLIENT_ID en SP_CLIENT_SECRET zijn nog niet ingesteld."
+            echo "Zie INSTELLEN-SHAREPOINT.md. Er wordt niets bijgewerkt."
+            echo "gereed=nee" >> "$GITHUB_OUTPUT"
+          else
+            echo "gereed=ja" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.check.outputs.gereed == 'ja'
+        with:
+          python-version: "3.12"
+
+      - name: Benodigde pakketten installeren
+        if: steps.check.outputs.gereed == 'ja'
+        run: pip install --quiet requests openpyxl
+
+      - name: Lijst ophalen uit SharePoint
+        if: steps.check.outputs.gereed == 'ja'
+        env:
+          SP_TENANT_ID: ${{ secrets.SP_TENANT_ID }}
+          SP_CLIENT_ID: ${{ secrets.SP_CLIENT_ID }}
+          SP_CLIENT_SECRET: ${{ secrets.SP_CLIENT_SECRET }}
+          # Staat het bestand ergens anders? Pas deze drie regels aan.
+          SP_HOSTNAME: latinamericanfoodbv.sharepoint.com
+          SP_SITE_PATH: /sites/kantoor
+          SP_FILE_PATH: Artikellijsten/NP - Leveranciers -Artikelnummers.xlsx
+        run: |
+          python3 tools/sharepoint_naar_site.py \
+            ${{ inputs.forceer && '--forceer' || '' }}
+
+      - name: Wijziging vastleggen
+        if: steps.check.outputs.gereed == 'ja'
+        run: |
+          if git diff --quiet -- leveranciers-data.json; then
+            echo "Geen wijzigingen: de site is al bij."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add leveranciers-data.json
+          git commit -m "Artikelnummers bijgewerkt vanuit SharePoint"
+          git push

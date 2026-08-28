@@ -1,7 +1,11 @@
 /*
- * HIER BEHEER JE DE ARTIKELNUMMERS VAN DE BELGISCHE LEVERANCIERS.
- * Deze lijst wordt gebruikt door belgie.html (Nederlands) EN
- * belgie-fr.html (Frans) — je hoeft dus maar op één plek te werken.
+ * TERUGVALLIJST VAN DE BELGISCHE LEVERANCIERS.
+ *
+ * De nummers beheer je in het Excel-bestand in SharePoint; belgie.html en
+ * belgie-fr.html halen de rijen met Land = BE op via leveranciers-bron.js.
+ *
+ * De lijst hieronder wordt alleen getoond zolang die nog laadt of als hij
+ * onbereikbaar is. Aanvullen doe je dus niet hier.
  *
  * Voorbeeld: products: ["123456", "", "ABC789", "", "", "", "", ""]
  * Een leeg veld toont automatisch een rood kruisje; zijn alle 8 nummers
