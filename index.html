@@ -554,12 +554,18 @@
   </div>
 </div>
 
+<script src="leveranciers-sheet.js"></script>
 <script>
   /*
-   * HIER BEHEER JE DE ARTIKELNUMMERS PER LEVERANCIER.
+   * DE ARTIKELNUMMERS BEHEER JE IN DE GOOGLE SHEET:
+   * https://docs.google.com/spreadsheets/d/19I072XfZ_q9NWnK51LourOh0BSEZv-4H58UPvd5STdY/edit
    *
-   * Voorbeeld:
-   * products: ["123456", "", "ABC789", "", "", "", "", ""]
+   * Deze pagina haalt de rijen met Land = NL bij elke keer laden op uit die
+   * Sheet (zie leveranciers-sheet.js). Aanvullen doe je dus in de Sheet,
+   * niet meer hier.
+   *
+   * De lijst hieronder blijft staan als terugval: die wordt getoond zolang
+   * de Sheet nog niet geladen is, of als hij onbereikbaar is.
    *
    * Een leeg veld toont automatisch een rood kruisje.
    * Zodra alle 8 artikelnummers zijn ingevuld, krijgt de leverancier
@@ -628,6 +634,12 @@
     { name: "VHC Kreko Zevenbergen", products: ["","","","","","","",""] },
     { name: "Visco Horeca", products: ["","","","","","","",""] }
   ];
+
+  /*
+   * De lijst hierboven is alleen de terugval. Normaal wordt hij direct na
+   * het laden vervangen door de actuele lijst uit de Google Sheet.
+   */
+  let activeSuppliers = suppliers;
 
   const body = document.getElementById("supplierBody");
   const filter = document.getElementById("supplierFilter");
@@ -804,7 +816,7 @@
   function renderTable(term = "") {
     const q = term.trim().toLowerCase();
 
-    const filtered = suppliers
+    const filtered = activeSuppliers
       .filter(supplier => supplier.name.toLowerCase().includes(q))
       .sort((a, b) => a.name.localeCompare(b.name, "nl", { sensitivity: "base" }));
 
@@ -849,6 +861,17 @@ emptyState.style.display = filtered.length ? "none" : "block";
   filter.addEventListener("input", event => renderTable(event.target.value));
 
   renderTable();
+
+  /*
+   * Haal daarna de actuele nummers op uit de Google Sheet (zie
+   * leveranciers-sheet.js). Lukt dat niet, dan blijft de lijst
+   * hierboven staan.
+   */
+  laLoadSuppliersFromSheet("NL").then(list => {
+    if (!list) return;
+    activeSuppliers = list;
+    renderTable(filter.value);
+  });
 
   /*
    * Als deze pagina in een iframe staat (bijv. op la-streetfood.nl),

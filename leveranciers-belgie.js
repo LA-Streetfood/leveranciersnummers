@@ -1,7 +1,13 @@
 /*
- * HIER BEHEER JE DE ARTIKELNUMMERS VAN DE BELGISCHE LEVERANCIERS.
- * Deze lijst wordt gebruikt door belgie.html (Nederlands) EN
- * belgie-fr.html (Frans) — je hoeft dus maar op één plek te werken.
+ * TERUGVALLIJST VAN DE BELGISCHE LEVERANCIERS.
+ *
+ * De nummers beheer je in de Google Sheet (zie leveranciers-sheet.js):
+ * https://docs.google.com/spreadsheets/d/19I072XfZ_q9NWnK51LourOh0BSEZv-4H58UPvd5STdY/edit
+ * belgie.html en belgie-fr.html halen de rijen met Land = BE daar op.
+ *
+ * De lijst hieronder wordt alleen getoond zolang de Sheet nog laadt of als
+ * hij onbereikbaar is. Handig om af en toe gelijk te trekken met de Sheet,
+ * maar aanvullen doe je in de Sheet.
  *
  * Voorbeeld: products: ["123456", "", "ABC789", "", "", "", "", ""]
  * Een leeg veld toont automatisch een rood kruisje; zijn alle 8 nummers
