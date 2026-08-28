@@ -100,12 +100,9 @@ function laRowsToSuppliers(rows, land) {
     }));
 }
 
-/*
- * Haalt de lijst voor één land op. Levert null als het niet lukt, zodat de
- * pagina de ingebouwde lijst kan blijven tonen.
- */
-function laLoadSuppliersFromSheet(land) {
-  if (!LA_SHEET_ID || !window.fetch) return Promise.resolve(null);
+/* Manier 1: de Sheet als CSV ophalen. */
+function laSheetViaCsv(land) {
+  if (!window.fetch) return Promise.reject(new Error("deze browser kan geen fetch"));
 
   const url = "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
     "/gviz/tq?tqx=out:csv&headers=0&t=" + Date.now();
@@ -115,13 +112,76 @@ function laLoadSuppliersFromSheet(land) {
       if (!response.ok) throw new Error("Sheet gaf status " + response.status);
       return response.text();
     })
-    .then(text => {
-      const suppliers = laRowsToSuppliers(laParseCsv(text), land);
-      return suppliers.length ? suppliers : null;
+    .then(text => laRowsToSuppliers(laParseCsv(text), land));
+}
+
+/*
+ * Manier 2: de Sheet ophalen via een <script>-element. Google stuurt het
+ * antwoord dan als een aanroep van onze eigen functie. Dat werkt ook in
+ * situaties waarin de browser manier 1 tegenhoudt (bijvoorbeeld strenge
+ * privacy-instellingen of een blokkade op verzoeken naar een ander domein).
+ */
+function laSheetViaScript(land) {
+  return new Promise((resolve, reject) => {
+    const naam = "laSheetAntwoord" + Date.now();
+    const script = document.createElement("script");
+
+    const opruimen = () => {
+      delete window[naam];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      clearTimeout(wachttijd);
+    };
+
+    const wachttijd = setTimeout(() => {
+      opruimen();
+      reject(new Error("geen antwoord van Google binnen 10 seconden"));
+    }, 10000);
+
+    window[naam] = antwoord => {
+      opruimen();
+      try {
+        const tabel = (antwoord || {}).table || {};
+        const koppen = (tabel.cols || []).map(kolom => String((kolom || {}).label || "").trim());
+        const waarde = cel => {
+          if (!cel) return "";
+          if (cel.f !== undefined && cel.f !== null) return String(cel.f);
+          if (cel.v === undefined || cel.v === null) return "";
+          return typeof cel.v === "number" && Number.isInteger(cel.v)
+            ? String(cel.v)
+            : String(cel.v);
+        };
+        const rijen = (tabel.rows || []).map(rij => (rij.c || []).map(waarde));
+        resolve(laRowsToSuppliers([koppen].concat(rijen), land));
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    script.onerror = () => { opruimen(); reject(new Error("Sheet niet bereikbaar")); };
+    script.src = "https://docs.google.com/spreadsheets/d/" + LA_SHEET_ID +
+      "/gviz/tq?tqx=out:json;responseHandler:" + naam + "&headers=1&t=" + Date.now();
+    document.head.appendChild(script);
+  });
+}
+
+/*
+ * Haalt de lijst voor één land op: eerst als CSV, en als dat niet lukt via een
+ * <script>-element. Levert null als geen van beide werkt, zodat de pagina de
+ * ingebouwde lijst kan blijven tonen.
+ */
+function laLoadSuppliersFromSheet(land) {
+  if (!LA_SHEET_ID) return Promise.resolve(null);
+
+  return laSheetViaCsv(land)
+    .catch(error => {
+      console.warn("Sheet ophalen als CSV lukte niet; nu via een script-element.", error);
+      return laSheetViaScript(land);
     })
+    .then(suppliers => (suppliers && suppliers.length) ? suppliers : null)
     .catch(error => {
       console.warn("Artikelnummers uit Google Sheets ophalen lukte niet; " +
-        "de lijst in de pagina zelf wordt getoond.", error);
+        "de lijst in de pagina zelf wordt getoond. Staat de Sheet gedeeld op " +
+        "\"Iedereen met de link\"?", error);
       return null;
     });
 }
