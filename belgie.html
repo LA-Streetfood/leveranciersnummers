@@ -745,7 +745,7 @@
 
   /*
    * Eigen logobestanden in deze map gaan vóór alle automatische bronnen.
-   * Upload bijv. delisalades.png (of .jpg) en het wordt vanzelf gebruikt.
+   * Upload bijv. delisalades.png (of .jpg, .webp, .avif, .svg) en het wordt vanzelf gebruikt.
    */
   const localLogoFiles = {
     "Biervliet Freez Center": "freezcenter",
@@ -766,7 +766,7 @@
     const initials = supplierInitials(name);
     let sources = [];
     if (localLogoFiles[name]) {
-      sources = [".png", ".jpg", ".webp", ".avif"].map(ext => localLogoFiles[name] + ext);
+      sources = [".png", ".jpg", ".webp", ".avif", ".svg"].map(ext => localLogoFiles[name] + ext);
     }
     if (supplierDomains[name]) {
       sources = sources.concat(faviconSources(supplierDomains[name]));

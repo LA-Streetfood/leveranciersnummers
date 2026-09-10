@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="283" height="150" viewBox="0 0 283 150">
+  <rect width="283" height="150" fill="#fff"/>
+  <!-- koksmuts boven de o -->
+  <g transform="translate(97 8)">
+    <path d="M22 44 C6 44 2 30 12 22 C6 8 22 0 32 8 C40 -4 58 0 56 14 C68 16 68 34 54 40 L54 44 Z" fill="#fff" stroke="#111" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="20" y="42" width="34" height="9" rx="2" fill="#fff" stroke="#111" stroke-width="4"/>
+  </g>
+  <text x="141" y="112" text-anchor="middle" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="88" letter-spacing="-4"><tspan fill="#111">h</tspan><tspan fill="#e2231a">o</tspan><tspan fill="#111">wa</tspan></text>
+  <text x="141" y="140" text-anchor="middle" fill="#e2231a" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="18" letter-spacing="1.5">HORECAGROOTHANDEL</text>
+</svg>
