@@ -598,12 +598,11 @@
     { name: "Bidfood Nieuwegein", products: ["176025","176028","176026","176027","176032","176029","176031","172509"] },
     { name: "Bidfood Schiedam", products: ["176025","176028","176026","176027","176032","176029","176031","172509"] },
     { name: "Bidfood Utrecht", products: ["176025","176028","176026","176027","176032","176029","176031","172509"] },
-    { name: "Broekhuyzen Horecagroothandel Noordwijkerhout", products: ["","","","","","","",""] },
     { name: "Chefs Culinar", products: ["","","","","","","",""] },
     { name: "Combigro Helmink Foodservice Zutphen", products: ["","","","","","","",""] },
     { name: "De Groot Grootverbruik Den Hoorn", products: ["","","","","","","",""] },
-    { name: "Dékro Horeca Totaal Ravenstein", products: ["","","","","","","",""] },
     { name: "DeliNova", products: ["","","","","","","",""] },
+    { name: "Fincioen BV", products: ["","","","","","","",""] },
     { name: "Fontijn Vlees en Vleeswaren B.V.", products: ["","","","","","","",""] },
     { name: "Foodimpuls", products: ["","","","","","","",""] },
     { name: "Foodpartners Woerden", products: ["","","","","","","",""] },
@@ -617,6 +616,7 @@
     { name: "Horesca Lieferink Zeist", products: ["","","","","","","",""] },
     { name: "Horesca Meppel", products: ["","","","","","","",""] },
     { name: "Horesca Smulders Goirle", products: ["","","","","","","",""] },
+    { name: "Howa Foodservice", products: ["","","","","","","",""] },
     { name: "Jansen Foodservice Apeldoorn", products: ["","","","","","","",""] },
     { name: "Jansen Foodservice Doetinchem", products: ["","","","","","","",""] },
     { name: "Jansen Foodservice Lochem", products: ["","","","","","","",""] },
@@ -704,9 +704,8 @@
    * "Naam zoals in de lijst": "website.nl" toe.
    */
   const supplierDomains = {
-    "Broekhuyzen Horecagroothandel Noordwijkerhout": "broekhuyzen.nl",
-    "Dékro Horeca Totaal Ravenstein": "dekro.nl",
     "Foodpartners Woerden": "foodpartners.nl",
+    "Howa Foodservice": "howa.nl",
     "Horeca Groothandel Tilburg": "hgt-tilburg.nl",
     "QSTA NL": "qsta.nl",
     "G&B Yerseke": "genbyerseke.nl",
@@ -756,7 +755,7 @@
     if (lower.includes("de groot grootverbruik")) return supplierLogos.degroot;
     if (lower.includes("chefs culinar")) return supplierLogos.chefs;
     if (lower.includes("jansma wijhe")) return supplierLogos.jansma;
-    if (lower.includes("spuntini") || lower.includes("génédis") || lower.includes("ryal distribution")) return supplierLogos.logo_text;
+    if (lower.includes("spuntini") || lower.includes("génédis")) return supplierLogos.logo_text;
     if (lower.includes("conway")) return supplierLogos.conway;
     if (lower.includes("makro")) return supplierLogos.makro;
     if (lower.includes("bellimmo")) return supplierLogos.bellimmo;
@@ -785,6 +784,7 @@
   const localLogoFiles = {
     "Biervliet Freez Center": "freezcenter",
     "Horeca Groothandel Tilburg": "hgtilburg",
+    "Howa Foodservice": "howa",
     "Délisalades": "delisalades",
     "Good'nFood - Massafrit": "goodnfood",
     "I.L.I.S. sa": "ilis",
