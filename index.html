@@ -616,7 +616,6 @@
     { name: "Horesca Lieferink Zeist", products: ["","","","","","","",""] },
     { name: "Horesca Meppel", products: ["","","","","","","",""] },
     { name: "Horesca Smulders Goirle", products: ["","","","","","","",""] },
-    { name: "Howa Foodservice", products: ["","","","","","","",""] },
     { name: "Jansen Foodservice Apeldoorn", products: ["","","","","","","",""] },
     { name: "Jansen Foodservice Doetinchem", products: ["","","","","","","",""] },
     { name: "Jansen Foodservice Lochem", products: ["","","","","","","",""] },
@@ -628,6 +627,7 @@
     { name: "Van De Ven Vleeswaren B.V.", products: ["","","","","","","",""] },
     { name: "Veldboer Eenhoorn Zwaag", products: ["","","","","","","",""] },
     { name: "VHC ActiFood", products: ["","","","","","","",""] },
+    { name: "VHC Combigro Rosmalen B.V.", products: ["","","","","","","",""] },
     { name: "VHC Jongens Almere", products: ["","","","","","","",""] },
     { name: "VHC Jongens Oostzaan", products: ["","","","","","","",""] },
     { name: "VHC Kreko Ede", products: ["","","","","","","",""] },
@@ -706,7 +706,6 @@
    */
   const supplierDomains = {
     "Foodpartners Woerden": "foodpartners.nl",
-    "Howa Foodservice": "howa.nl",
     "Horeca Groothandel Tilburg": "hgt-tilburg.nl",
     "QSTA NL": "qsta.nl",
     "G&B Yerseke": "genbyerseke.nl",
@@ -749,6 +748,7 @@
     if (lower.includes("bidfood")) return supplierLogos.bidfood;
     if (lower.includes("vhc")) return supplierLogos.vhc;
     if (lower.includes("combigro helmink")) return supplierLogos.vhc;
+    if (lower.includes("howa")) return supplierLogos.vhc; // Howa Foodservice heet nu VHC Combigro Rosmalen
     if (lower.includes("becker-royen")) return supplierLogos.brm;
     if (lower.includes("krikke")) return supplierLogos.krikke;
     if (lower.includes("jansen foodservice")) return supplierLogos.jansen;
@@ -785,7 +785,6 @@
   const localLogoFiles = {
     "Biervliet Freez Center": "freezcenter",
     "Horeca Groothandel Tilburg": "hgtilburg",
-    "Howa Foodservice": "howa",
     "Délisalades": "delisalades",
     "Good'nFood - Massafrit": "goodnfood",
     "I.L.I.S. sa": "ilis",
