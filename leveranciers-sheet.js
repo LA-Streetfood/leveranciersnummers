@@ -1,13 +1,23 @@
 /*
- * ARTIKELNUMMERS UIT GOOGLE SHEETS
- * =================================
- * De nummers op deze pagina's komen uit één Google Sheet:
+ * ARTIKELNUMMERS, PRODUCTEN EN LEVERANCIERS UIT GOOGLE SHEETS
+ * ===========================================================
+ * De lijsten op deze pagina's komen uit één Google Sheet:
  *
  *   https://docs.google.com/spreadsheets/d/19I072XfZ_q9NWnK51LourOh0BSEZv-4H58UPvd5STdY/edit
  *
- * Iedereen met wie je die Sheet deelt kan nummers aanvullen; de pagina's
- * halen de lijst bij elke keer laden opnieuw op. Je hoeft dus niets meer
- * in de code te wijzigen.
+ * Iedereen met wie je die Sheet deelt kan de lijst aanvullen; de pagina's
+ * halen alles bij elke keer laden opnieuw op. Je hoeft dus niets meer in de
+ * code te wijzigen:
+ *
+ *   NIEUWE LEVERANCIER  -> nieuwe rij in de Sheet (Land + Groothandel invullen,
+ *                          de pagina sorteert zelf alfabetisch).
+ *   NIEUW PRODUCT       -> nieuwe kolom in de Sheet. De kop moet met de LA-code
+ *                          beginnen, met de productnaam erachter, bijvoorbeeld
+ *                          "LA123 - Crispy Onion Rings". De kolom verschijnt
+ *                          automatisch op alle pagina's (ook de Franse).
+ *   LOGO                -> vul in de kolom "Website" het webadres van de
+ *                          leverancier in (bijv. bidfood.nl); het logo wordt
+ *                          dan automatisch opgehaald.
  *
  * VOORWAARDE: de Sheet moet leesbaar zijn zonder inloggen.
  * Zet in de Sheet: Delen > Algemene toegang > "Iedereen met de link" > Lezer.
@@ -17,9 +27,10 @@
  * KOLOMMEN IN DE SHEET (de volgorde maakt niet uit, de koppen wel):
  *   Land          -> NL of BE
  *   Groothandel   -> naam van de leverancier
- *   LA152 ... LA115 -> één kolom per product; de kop moet met de LA-code
- *                      beginnen, extra tekst erachter mag ("LA152 - Authentic
- *                      Mexican Cheese Sauce").
+ *   Website       -> optioneel, webadres voor het logo
+ *   LA152 ...     -> één kolom per product; de kop moet met de LA-code
+ *                    beginnen, met de naam erachter ("LA152 - Authentic
+ *                    Mexican Cheese Sauce").
  *
  * TIP: begint een artikelnummer met een 0, zet de kolom dan in de Sheet op
  * Opmaak > Getal > Tekst, anders haalt Google die nul weg.
@@ -40,8 +51,21 @@ const LA_SHEET_ID = "19I072XfZ_q9NWnK51LourOh0BSEZv-4H58UPvd5STdY";
  */
 const LA_GEPUBLICEERDE_CSV = "";
 
-/* Volgorde van de productkolommen in de tabel op de pagina. */
-const LA_PRODUCT_CODES = ["LA152", "LA824", "LA768", "LA823", "LA7600", "LA882", "LA979", "LA115"];
+/*
+ * De producten zoals ze in de pagina's zelf zijn opgenomen: alleen de terugval
+ * voor als de Sheet onbereikbaar is. Normaal worden de productkolommen uit de
+ * Sheet zelf gelezen.
+ */
+const LA_FALLBACK_PRODUCTEN = [
+  { code: "LA152", naam: "Authentic Mexican Cheese Sauce" },
+  { code: "LA824", naam: "Triple Stack Bun" },
+  { code: "LA768", naam: "Shrimp Popcorn" },
+  { code: "LA823", naam: "American Sub Sandwich" },
+  { code: "LA7600", naam: "Texas Hotlink" },
+  { code: "LA882", naam: "Steakhouse Burger" },
+  { code: "LA979", naam: "Ube Cheese Cake" },
+  { code: "LA115", naam: "American Dill Pickles" }
+];
 
 /* Splitst CSV-tekst in rijen en cellen, inclusief velden met komma's of aanhalingstekens. */
 function laParseCsv(text) {
@@ -92,9 +116,14 @@ function laVindKoprij(rows) {
   return -1;
 }
 
-/* Maakt van de CSV-rijen de leverancierslijst voor één land ("NL" of "BE"). */
+/*
+ * Maakt van de CSV-rijen de lijst voor één land ("NL" of "BE"):
+ * { producten: [{code, naam}], suppliers: [{name, website, products}] }.
+ * De productkolommen komen uit de koprij zelf, zodat een nieuwe kolom in de
+ * Sheet automatisch een nieuwe kolom op de pagina wordt.
+ */
 function laRowsToSuppliers(rows, land) {
-  if (!rows.length) return [];
+  if (!rows.length) return { producten: [], suppliers: [] };
 
   const koprij = laVindKoprij(rows);
   if (koprij === -1) {
@@ -105,17 +134,24 @@ function laRowsToSuppliers(rows, land) {
   const headers = rows[koprij].map(cell => cell.trim());
   const landIndex = headers.findIndex(cell => /^land$/i.test(cell));
   const nameIndex = headers.findIndex(cell => /^(groothandel|leverancier)$/i.test(cell));
+  const websiteIndex = headers.findIndex(cell => /^website/i.test(cell));
 
-  /* Zoek per LA-code de bijbehorende kolom, zodat de volgorde in de Sheet vrij is. */
-  const codeIndex = {};
+  /* Elke kolom waarvan de kop met een LA-code begint is een productkolom. */
+  const productKolommen = [];
   headers.forEach((cell, index) => {
-    const match = cell.match(/^\s*(LA\s*\d+)/i);
-    if (match) codeIndex[match[1].replace(/\s+/g, "").toUpperCase()] = index;
+    const match = cell.match(/^\s*(LA\s*\d+)\s*(?:[-–—:]\s*(.*))?$/i);
+    if (match) {
+      productKolommen.push({
+        code: match[1].replace(/\s+/g, "").toUpperCase(),
+        naam: (match[2] || "").trim(),
+        index: index
+      });
+    }
   });
 
   const wanted = String(land).toUpperCase();
 
-  return rows.slice(koprij + 1)
+  const suppliers = rows.slice(koprij + 1)
     .filter(cells => {
       const name = (cells[nameIndex] || "").trim();
       if (!name) return false;
@@ -124,11 +160,14 @@ function laRowsToSuppliers(rows, land) {
     })
     .map(cells => ({
       name: (cells[nameIndex] || "").trim(),
-      products: LA_PRODUCT_CODES.map(code => {
-        const index = codeIndex[code];
-        return index === undefined ? "" : (cells[index] || "").trim();
-      })
+      website: websiteIndex === -1 ? "" : (cells[websiteIndex] || "").trim(),
+      products: productKolommen.map(kolom => (cells[kolom.index] || "").trim())
     }));
+
+  return {
+    producten: productKolommen.map(kolom => ({ code: kolom.code, naam: kolom.naam || kolom.code })),
+    suppliers: suppliers
+  };
 }
 
 /*
@@ -174,9 +213,9 @@ function laCsvVanAdres(url, land) {
       return response.text();
     })
     .then(text => {
-      const suppliers = laRowsToSuppliers(laParseCsv(text), land);
-      if (!suppliers.length) throw new Error("geen leveranciers gevonden");
-      return suppliers;
+      const data = laRowsToSuppliers(laParseCsv(text), land);
+      if (!data.suppliers.length) throw new Error("geen leveranciers gevonden");
+      return data;
     });
 }
 
@@ -260,7 +299,7 @@ function laLoadSuppliersFromSheet(land) {
       console.warn("Sheet ophalen als CSV lukte niet; nu via een script-element.", error);
       return laSheetViaScript(land);
     })
-    .then(suppliers => (suppliers && suppliers.length) ? suppliers : null)
+    .then(data => (data && data.suppliers && data.suppliers.length) ? data : null)
     .catch(error => {
       console.warn("Artikelnummers uit Google Sheets ophalen lukte niet; " +
         "de lijst in de pagina zelf wordt getoond. Staat de Sheet gedeeld op " +
