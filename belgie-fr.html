@@ -1121,3 +1121,22 @@ html, body, .la-board, .la-topbar, .table-shell, .table-scroll, table {
     .supplier-name { overflow-wrap: break-word; }
   }
 </style>
+
+<style>
+  /* Kleiner logo en de zoekvelden + bladerknoppen echt op één regel. */
+  .la-logo { width: 84px !important; }
+
+  @media (min-width: 701px) {
+    .search-wrap { flex-wrap: nowrap !important; }
+    .search { flex: 1 1 150px !important; min-width: 110px !important; max-width: 240px; }
+    .product-nav { flex: 0 0 auto; margin-left: auto; }
+    .product-nav span { white-space: nowrap; }
+  }
+
+  @media (max-width: 700px) {
+    .la-logo { width: 60px !important; grid-row: 1 !important; }
+    .search-wrap { grid-column: 1 / -1 !important; }
+    .search { flex: 1 1 100% !important; max-width: none !important; }
+    .product-nav { width: 100%; justify-content: space-between; }
+  }
+</style>
