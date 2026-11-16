@@ -566,6 +566,12 @@
         type="search"
         placeholder="Zoek groothandel of artikelnummer..."
         aria-label="Vind groothandel">
+      <input
+        id="productFilter"
+        class="search"
+        type="search"
+        placeholder="Zoek op LA-nummer..."
+        aria-label="Zoek op LA-nummer">
     </div>
   </div>
 <div id="productNav" class="product-nav" style="display: none;">
@@ -840,11 +846,23 @@
   let productBladzijde = 0;
 
   function aantalBladzijden() {
-    return Math.max(1, Math.ceil(activeProducten.length / PRODUCTEN_PER_BLADZIJDE));
+    return Math.max(1, Math.ceil(gefilterdeProductIndexen().length / PRODUCTEN_PER_BLADZIJDE));
+  }
+
+  /* Het LA-zoekveld: toont alleen de productkolommen die erbij passen. */
+  let productQuery = "";
+
+  function gefilterdeProductIndexen() {
+    const pq = productQuery.trim().toLowerCase();
+    const alle = activeProducten.map((p, i) => i);
+    if (!pq) return alle;
+    return alle.filter(i =>
+      activeProducten[i].code.toLowerCase().indexOf(pq) !== -1 ||
+      activeProducten[i].naam.toLowerCase().indexOf(pq) !== -1);
   }
 
   function zichtbareProductIndexen() {
-    const indexen = activeProducten.map((p, i) => i);
+    const indexen = gefilterdeProductIndexen();
     if (indexen.length <= PRODUCTEN_PER_BLADZIJDE) return indexen;
     const start = productBladzijde * PRODUCTEN_PER_BLADZIJDE;
     return indexen.slice(start, start + PRODUCTEN_PER_BLADZIJDE);
@@ -855,8 +873,8 @@
     if (aantalBladzijden() <= 1) { nav.style.display = "none"; return; }
     nav.style.display = "flex";
     const start = productBladzijde * PRODUCTEN_PER_BLADZIJDE;
-    const eind = Math.min(start + PRODUCTEN_PER_BLADZIJDE, activeProducten.length);
-    document.getElementById("productNavTekst").textContent = "Producten " + (start + 1) + "\u2013" + eind + " van " + activeProducten.length;
+    const eind = Math.min(start + PRODUCTEN_PER_BLADZIJDE, gefilterdeProductIndexen().length);
+    document.getElementById("productNavTekst").textContent = "Producten " + (start + 1) + "\u2013" + eind + " van " + gefilterdeProductIndexen().length;
     document.getElementById("productVorige").disabled = productBladzijde === 0;
     document.getElementById("productVolgende").disabled = productBladzijde >= aantalBladzijden() - 1;
   }
@@ -908,8 +926,9 @@
           }
         }
       }
-      if (doelIndex !== -1) {
-        productBladzijde = Math.floor(doelIndex / PRODUCTEN_PER_BLADZIJDE);
+      const doelPositie = doelIndex === -1 ? -1 : gefilterdeProductIndexen().indexOf(doelIndex);
+      if (doelPositie !== -1) {
+        productBladzijde = Math.floor(doelPositie / PRODUCTEN_PER_BLADZIJDE);
         bouwKop();
         zetKolombreedtes();
       }
@@ -963,6 +982,13 @@ emptyState.style.display = filtered.length ? "none" : "block";
   filter.addEventListener("input", event => renderTable(event.target.value));
   document.getElementById("productVorige").addEventListener("click", () => gaNaarProductBladzijde(productBladzijde - 1));
   document.getElementById("productVolgende").addEventListener("click", () => gaNaarProductBladzijde(productBladzijde + 1));
+  document.getElementById("productFilter").addEventListener("input", event => {
+    productQuery = event.target.value;
+    productBladzijde = 0;
+    bouwKop();
+    zetKolombreedtes();
+    renderTable(filter.value);
+  });
 
   bouwKop();
   zetKolombreedtes();
@@ -1031,4 +1057,24 @@ html, body, .la-board, .la-topbar, .table-shell, .table-scroll, table {
       min-width: 980px;
     }
   }
+</style>
+
+<style>
+  /* Iets grotere letters nu er per bladzijde maximaal 5 producten staan. */
+  thead th { font-size: 16px; }
+  .la-code { font-size: 12px; }
+  tbody td { font-size: 17px !important; }
+  tbody td:first-child { font-size: 17px !important; }
+  .article-number { font-size: 16px !important; }
+  .product-name { font-size: 16px !important; }
+  .badge { font-size: 13px; }
+  .progress-note { font-size: 12px; }
+  .not-available-x { font-size: 24px; }
+  .la-heading-main { font-size: 22px; }
+  .la-country-link { font-size: 14px; }
+  .product-nav button, .product-nav span { font-size: 14px; }
+
+  /* Ruimte voor de twee zoekvelden naast elkaar. */
+  .search-wrap { display: flex; gap: 8px; flex-wrap: wrap; max-width: 430px !important; }
+  .search { min-width: 140px; flex: 1 1 150px; }
 </style>
