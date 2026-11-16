@@ -572,13 +572,13 @@
         type="search"
         placeholder="Zoek op LA-nummer..."
         aria-label="Zoek op LA-nummer">
+      <div id="productNav" class="product-nav" style="display: none;">
+        <button type="button" id="productVorige">&larr; Vorige</button>
+        <span id="productNavTekst"></span>
+        <button type="button" id="productVolgende">Volgende &rarr;</button>
+      </div>
     </div>
   </div>
-<div id="productNav" class="product-nav" style="display: none;">
-  <button type="button" id="productVorige">&larr; Vorige producten</button>
-  <span id="productNavTekst"></span>
-  <button type="button" id="productVolgende">Volgende producten &rarr;</button>
-</div>
 <div class="table-shell">
     <div class="table-scroll">
       <table>
@@ -1074,7 +1074,12 @@ html, body, .la-board, .la-topbar, .table-shell, .table-scroll, table {
   .la-country-link { font-size: 14px; }
   .product-nav button, .product-nav span { font-size: 14px; }
 
-  /* Ruimte voor de twee zoekvelden naast elkaar. */
-  .search-wrap { display: flex; gap: 8px; flex-wrap: wrap; max-width: 430px !important; }
-  .search { min-width: 140px; flex: 1 1 150px; }
+  /* Zoekvelden en bladerknoppen samen op één regel in de groene balk. */
+  .search-wrap { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; max-width: none !important; width: 100%; }
+  .search { min-width: 140px; flex: 0 1 215px; }
+
+  .product-nav { background: transparent !important; padding: 0 !important; gap: 8px; }
+  .product-nav button { background: var(--la-yellow); color: #17221c; }
+  .product-nav button:disabled { opacity: .4; }
+  .product-nav span { color: #ffffff; }
 </style>
