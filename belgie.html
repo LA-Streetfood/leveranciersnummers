@@ -874,7 +874,7 @@
     nav.style.display = "flex";
     const start = productBladzijde * PRODUCTEN_PER_BLADZIJDE;
     const eind = Math.min(start + PRODUCTEN_PER_BLADZIJDE, gefilterdeProductIndexen().length);
-    document.getElementById("productNavTekst").textContent = "Producten " + (start + 1) + "\u2013" + eind + " van " + gefilterdeProductIndexen().length;
+    document.getElementById("productNavTekst").textContent = (start + 1) + "\u2013" + eind + " van " + gefilterdeProductIndexen().length;
     document.getElementById("productVorige").disabled = productBladzijde === 0;
     document.getElementById("productVolgende").disabled = productBladzijde >= aantalBladzijden() - 1;
   }
@@ -1079,7 +1079,7 @@ html, body, .la-board, .la-topbar, .table-shell, .table-scroll, table {
   .search { min-width: 140px; flex: 0 1 215px; }
 
   .product-nav { background: transparent !important; padding: 0 !important; gap: 8px; }
-  .product-nav button { background: var(--la-yellow); color: #17221c; }
+  .product-nav button { background: var(--la-yellow); color: #17221c; height: 44px; padding: 0 16px; border-radius: 5px; }
   .product-nav button:disabled { opacity: .4; }
   .product-nav span { color: #ffffff; }
 </style>
