@@ -493,6 +493,39 @@
     font-weight: 700;
   }
 
+  .product-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: var(--la-butter);
+    padding: 9px 14px;
+  }
+
+  .product-nav button {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--la-green);
+    border: 0;
+    border-radius: 4px;
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+
+  .product-nav button:disabled {
+    opacity: .35;
+    cursor: default;
+  }
+
+  .product-nav span {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--la-green);
+  }
+
   .empty {
     display: none;
     padding: 32px;
@@ -531,10 +564,15 @@
         id="supplierFilter"
         class="search"
         type="search"
-        placeholder="Vind jouw groothandel..."
+        placeholder="Zoek groothandel of artikelnummer..."
         aria-label="Vind groothandel">
     </div>
   </div>
+<div id="productNav" class="product-nav" style="display: none;">
+  <button type="button" id="productVorige">&larr; Vorige producten</button>
+  <span id="productNavTekst"></span>
+  <button type="button" id="productVolgende">Volgende producten &rarr;</button>
+</div>
 <div class="table-shell">
     <div class="table-scroll">
       <table>
@@ -793,15 +831,54 @@
    * ingebouwde terugval) en past de kolombreedtes daarop aan. Zo verschijnt
    * een nieuwe productkolom in de Sheet vanzelf op de pagina.
    */
+  /*
+   * Bij veel producten tonen we er maximaal 5 tegelijk; met de knoppen
+   * boven de tabel blader je naar de volgende producten. De status-kolom
+   * telt altijd over alle producten, ook de niet-getoonde.
+   */
+  const PRODUCTEN_PER_BLADZIJDE = 5;
+  let productBladzijde = 0;
+
+  function aantalBladzijden() {
+    return Math.max(1, Math.ceil(activeProducten.length / PRODUCTEN_PER_BLADZIJDE));
+  }
+
+  function zichtbareProductIndexen() {
+    const indexen = activeProducten.map((p, i) => i);
+    if (indexen.length <= PRODUCTEN_PER_BLADZIJDE) return indexen;
+    const start = productBladzijde * PRODUCTEN_PER_BLADZIJDE;
+    return indexen.slice(start, start + PRODUCTEN_PER_BLADZIJDE);
+  }
+
+  function werkNavBij() {
+    const nav = document.getElementById("productNav");
+    if (aantalBladzijden() <= 1) { nav.style.display = "none"; return; }
+    nav.style.display = "flex";
+    const start = productBladzijde * PRODUCTEN_PER_BLADZIJDE;
+    const eind = Math.min(start + PRODUCTEN_PER_BLADZIJDE, activeProducten.length);
+    document.getElementById("productNavTekst").textContent = "Producten " + (start + 1) + "\u2013" + eind + " van " + activeProducten.length;
+    document.getElementById("productVorige").disabled = productBladzijde === 0;
+    document.getElementById("productVolgende").disabled = productBladzijde >= aantalBladzijden() - 1;
+  }
+
+  function gaNaarProductBladzijde(nieuw) {
+    productBladzijde = Math.max(0, Math.min(nieuw, aantalBladzijden() - 1));
+    bouwKop();
+    zetKolombreedtes();
+    renderTable(filter.value);
+  }
+
   function bouwKop() {
+    productBladzijde = Math.max(0, Math.min(productBladzijde, aantalBladzijden() - 1));
     document.getElementById("headerRow").innerHTML =
       `<th>Groothandel</th>` +
-      activeProducten.map(p => `<th><span class="product-name">${p.naam}</span><span class="la-code">${p.code}</span></th>`).join("") +
+      zichtbareProductIndexen().map(i => { const p = activeProducten[i]; return `<th><span class="product-name">${p.naam}</span><span class="la-code">${p.code}</span></th>`; }).join("") +
       `<th>Status</th>`;
+    werkNavBij();
   }
 
   function zetKolombreedtes() {
-    const n = Math.max(activeProducten.length, 1);
+    const n = Math.max(zichtbareProductIndexen().length, 1);
     let stijl = document.getElementById("kolomStijl");
     if (!stijl) {
       stijl = document.createElement("style");
@@ -815,8 +892,34 @@
   function renderTable(term = "") {
     const q = term.trim().toLowerCase();
 
+    /*
+     * Zoeken werkt op de naam van de groothandel en op artikelnummers.
+     * Staat het gevonden nummer op een andere productbladzijde, dan
+     * bladert de tabel daar automatisch heen.
+     */
+    if (q.length >= 2) {
+      const zichtbaar = zichtbareProductIndexen();
+      let doelIndex = -1;
+      zoek: for (const supplier of activeSuppliers) {
+        for (let i = 0; i < supplier.products.length; i++) {
+          if (String(supplier.products[i]).toLowerCase().includes(q)) {
+            if (zichtbaar.indexOf(i) !== -1) { doelIndex = -1; break zoek; }
+            if (doelIndex === -1) doelIndex = i;
+          }
+        }
+      }
+      if (doelIndex !== -1) {
+        productBladzijde = Math.floor(doelIndex / PRODUCTEN_PER_BLADZIJDE);
+        bouwKop();
+        zetKolombreedtes();
+      }
+    }
+
+    const kolommen = zichtbareProductIndexen();
+
     const filtered = activeSuppliers
-      .filter(supplier => supplier.name.toLowerCase().includes(q))
+      .filter(supplier => supplier.name.toLowerCase().includes(q) ||
+        supplier.products.some(nummer => String(nummer).toLowerCase().includes(q)))
       .sort((a, b) => a.name.localeCompare(b.name, "nl", { sensitivity: "base" }));
 
     body.innerHTML = filtered.map(supplier => {
@@ -824,8 +927,8 @@
       const allDone = completed === supplier.products.length;
       const isLaWebshop = supplier.name === "LA Streetfood webshop & groothandel";
 
-      const productCells = supplier.products.map(articleNumber => {
-        const value = String(articleNumber || "").trim();
+      const productCells = kolommen.map(i => {
+        const value = String(supplier.products[i] || "").trim();
         return `
           <td>
             ${value
@@ -858,6 +961,8 @@ emptyState.style.display = filtered.length ? "none" : "block";
   }
 
   filter.addEventListener("input", event => renderTable(event.target.value));
+  document.getElementById("productVorige").addEventListener("click", () => gaNaarProductBladzijde(productBladzijde - 1));
+  document.getElementById("productVolgende").addEventListener("click", () => gaNaarProductBladzijde(productBladzijde + 1));
 
   bouwKop();
   zetKolombreedtes();
