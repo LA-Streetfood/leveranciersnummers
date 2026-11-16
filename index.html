@@ -875,11 +875,18 @@
    * boven de tabel blader je naar de volgende producten. De status-kolom
    * telt altijd over alle producten, ook de niet-getoonde.
    */
-  const PRODUCTEN_PER_BLADZIJDE = 5;
+  /* Op een smal scherm (mobiel) tonen we 1 product tegelijk, zodat de
+     tabel precies past zonder zijwaarts schuiven; op desktop 5. */
+  const mobieleWeergave = window.matchMedia("(max-width: 700px)");
+
+  function productenPerBladzijde() {
+    return mobieleWeergave.matches ? 1 : 5;
+  }
+
   let productBladzijde = 0;
 
   function aantalBladzijden() {
-    return Math.max(1, Math.ceil(gefilterdeProductIndexen().length / PRODUCTEN_PER_BLADZIJDE));
+    return Math.max(1, Math.ceil(gefilterdeProductIndexen().length / productenPerBladzijde()));
   }
 
   /* Het LA-zoekveld: toont alleen de productkolommen die erbij passen. */
@@ -896,18 +903,19 @@
 
   function zichtbareProductIndexen() {
     const indexen = gefilterdeProductIndexen();
-    if (indexen.length <= PRODUCTEN_PER_BLADZIJDE) return indexen;
-    const start = productBladzijde * PRODUCTEN_PER_BLADZIJDE;
-    return indexen.slice(start, start + PRODUCTEN_PER_BLADZIJDE);
+    if (indexen.length <= productenPerBladzijde()) return indexen;
+    const start = productBladzijde * productenPerBladzijde();
+    return indexen.slice(start, start + productenPerBladzijde());
   }
 
   function werkNavBij() {
     const nav = document.getElementById("productNav");
     if (aantalBladzijden() <= 1) { nav.style.display = "none"; return; }
     nav.style.display = "flex";
-    const start = productBladzijde * PRODUCTEN_PER_BLADZIJDE;
-    const eind = Math.min(start + PRODUCTEN_PER_BLADZIJDE, gefilterdeProductIndexen().length);
-    document.getElementById("productNavTekst").textContent = (start + 1) + "\u2013" + eind + " van " + gefilterdeProductIndexen().length;
+    const start = productBladzijde * productenPerBladzijde();
+    const eind = Math.min(start + productenPerBladzijde(), gefilterdeProductIndexen().length);
+    document.getElementById("productNavTekst").textContent =
+      (eind === start + 1 ? String(start + 1) : (start + 1) + "\u2013" + eind) + " van " + gefilterdeProductIndexen().length;
     document.getElementById("productVorige").disabled = productBladzijde === 0;
     document.getElementById("productVolgende").disabled = productBladzijde >= aantalBladzijden() - 1;
   }
@@ -936,8 +944,16 @@
       stijl.id = "kolomStijl";
       document.body.appendChild(stijl);
     }
-    stijl.textContent =
-      "thead th:nth-child(n+2):nth-child(-n+" + (n + 1) + "), tbody td:nth-child(n+2):nth-child(-n+" + (n + 1) + ") { width: " + (72 / n).toFixed(2) + "% !important; }";
+    if (mobieleWeergave.matches) {
+      stijl.textContent =
+        "table { min-width: 0 !important; } " +
+        "thead th:first-child, tbody td:first-child { width: 42% !important; } " +
+        "thead th:nth-child(n+2):nth-child(-n+" + (n + 1) + "), tbody td:nth-child(n+2):nth-child(-n+" + (n + 1) + ") { width: " + (34 / n).toFixed(2) + "% !important; } " +
+        "thead th:last-child, tbody td:last-child { width: 24% !important; }";
+    } else {
+      stijl.textContent =
+        "thead th:nth-child(n+2):nth-child(-n+" + (n + 1) + "), tbody td:nth-child(n+2):nth-child(-n+" + (n + 1) + ") { width: " + (72 / n).toFixed(2) + "% !important; }";
+    }
   }
 
   function renderTable(term = "") {
@@ -961,7 +977,7 @@
       }
       const doelPositie = doelIndex === -1 ? -1 : gefilterdeProductIndexen().indexOf(doelIndex);
       if (doelPositie !== -1) {
-        productBladzijde = Math.floor(doelPositie / PRODUCTEN_PER_BLADZIJDE);
+        productBladzijde = Math.floor(doelPositie / productenPerBladzijde());
         bouwKop();
         zetKolombreedtes();
       }
@@ -1015,6 +1031,11 @@ emptyState.style.display = filtered.length ? "none" : "block";
   filter.addEventListener("input", event => renderTable(event.target.value));
   document.getElementById("productVorige").addEventListener("click", () => gaNaarProductBladzijde(productBladzijde - 1));
   document.getElementById("productVolgende").addEventListener("click", () => gaNaarProductBladzijde(productBladzijde + 1));
+  mobieleWeergave.addEventListener("change", () => {
+    bouwKop();
+    zetKolombreedtes();
+    renderTable(filter.value);
+  });
   document.getElementById("productFilter").addEventListener("input", event => {
     productQuery = event.target.value;
     productBladzijde = 0;
@@ -1115,4 +1136,21 @@ html, body, .la-board, .la-topbar, .table-shell, .table-scroll, table {
   .product-nav button { background: var(--la-yellow); color: #17221c; height: 44px; padding: 0 16px; border-radius: 5px; }
   .product-nav button:disabled { opacity: .4; }
   .product-nav span { color: #ffffff; }
+</style>
+
+<style>
+  /* Mobiel (1 product per bladzijde): iets kleinere tekst zodat woorden niet afbreken. */
+  @media (max-width: 700px) {
+    thead th { font-size: 13px; overflow-wrap: normal; }
+    tbody td { font-size: 15px !important; }
+    tbody td:first-child { font-size: 15px !important; }
+    .article-number { font-size: 15px !important; }
+    .product-name { font-size: 13px !important; }
+    .la-code { font-size: 11px; }
+    .badge { font-size: 12px; }
+    .progress-note { font-size: 10px; }
+    .supplier-logo { flex: 0 0 22px; width: 22px; }
+    tbody td { overflow-wrap: break-word; }
+    .supplier-name { overflow-wrap: break-word; }
+  }
 </style>
